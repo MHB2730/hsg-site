@@ -1,0 +1,142 @@
+{
+  "title": "About the firm",
+  "intro": "Established in 1990, HSG (Hornby, Smyly, Glavovic Inc.) was the first specialist environmental law firm in South Africa and has worked in the land-legal sector since.",
+  "body": [
+    "<p>As a firm, we work closely both with clients and built environment specialists to offer solutions that take the entire property-development process into account, enabling us to add holistic value to our clients’ projects. We also have significant experience in community facilitation, working on the ground to ensure that the social aspect of projects is handled in an effective and responsible manner.</p>",
+    "<p>HSG was established in 1990 by partners Peter Glavovic, David Smyly and Jeremy Ridl, with Shaun Hornby joining the firm the following year. Both Peter Glavovic and Jeremy Ridl served as professors of Environmental Law at the University of KwaZulu-Natal, and the practice has a long history in specialising in the field. The original partners have since exited the firm, and the current leadership is made up of the firm’s directors.</p>"
+  ],
+  "milestones": [
+    {
+      "year": "1990",
+      "title": "The firm is founded",
+      "text": "Hornby, Smyly, Glavovic Inc. is established by Peter Glavovic, David Smyly and Jeremy Ridl as a specialist environmental law practice, the first of its kind in South Africa."
+    },
+    {
+      "year": "1991",
+      "title": "Shaun Hornby joins",
+      "text": "Shaun Hornby becomes the fourth founding partner, bringing housing and land-legal policy work to the practice."
+    },
+    {
+      "year": "1994",
+      "title": "Cato Manor and First Group",
+      "text": "The firm acts for the Cato Manor Development Association and begins a client relationship with First Group that continues today."
+    },
+    {
+      "year": "1998",
+      "title": "SANRAL",
+      "text": "HSG joins a joint venture contracted to the South African National Roads Agency to resolve land-related issues and attend to conveyancing."
+    },
+    {
+      "year": "2015",
+      "title": "MAJV",
+      "text": "HSG becomes a member of the GeoAfrika-led MAJV, responsible for the management of SANRAL’s property portfolio."
+    },
+    {
+      "year": "2021",
+      "title": "PropWatch and PropSol",
+      "text": "Two further SANRAL joint ventures: property administration, and property acquisition for the national land portfolio."
+    },
+    {
+      "year": "Today",
+      "title": "Two offices",
+      "text": "More than 65 people in Durban and Cape Town, led by the firm’s directors, across thirteen areas of practice."
+    }
+  ],
+  "empowerment": {
+    "title": "Staff and B-BBEE",
+    "level": "Level 1 B-BBEE contributor",
+    "ownership": "One-third black ownership",
+    "facts": [
+      "The firm employs more than 65 staff members in addition to its directors",
+      "56% of staff are women, 36% are black and 34% are youths",
+      "Courses that extend staff knowledge — conveyancing, project management, financial management, legal bookkeeping and first aid — are paid for by the firm",
+      "HSG also assists employees who wish to pursue tertiary education"
+    ],
+    "certificate": "documents/B-BBEE-Certificate-24-July-2024.pdf",
+    "certificateLabel": "View B-BBEE certificate (July 2024)"
+  },
+  "appointmentsIntro": "HSG has worked with national, provincial and municipal government, local communities, non-governmental organisations and private developers. These are some of the firm’s appointments.",
+  "appointments": [
+    {
+      "from": "2021",
+      "to": "Current",
+      "client": "PropWatch JV",
+      "text": "HSG is a member of the PropWatch JV, which provides a comprehensive property administration service to the South African National Roads Agency SOC Ltd (SANRAL). The firm’s role is in the administration, management and reporting of the SANRAL land portfolio.",
+      "short": "Property administration, management and reporting for SANRAL’s land portfolio."
+    },
+    {
+      "from": "2021",
+      "to": "Current",
+      "client": "PropSol JV",
+      "text": "HSG is a member of the PropSol JV, which provides a comprehensive property acquisition and land identification service to SANRAL for its national land portfolio. The firm’s role is in the property acquisition and management of the portfolio, which has resulted in HSG employing more than 30 staff members dedicated to the project.",
+      "short": "Property acquisition and land identification for SANRAL’s national land portfolio."
+    },
+    {
+      "from": "2015",
+      "to": "Current",
+      "client": "SANRAL — MAJV",
+      "text": "HSG is a member of the MAJV. This entity, led by GeoAfrika, is responsible for the efficient management of SANRAL’s extensive property portfolio. The firm’s role is in the property management of the portfolio, which has resulted in HSG employing more than 60 staff members dedicated to the project.",
+      "short": "Property management of SANRAL’s portfolio within the GeoAfrika-led MAJV."
+    },
+    {
+      "from": "2010",
+      "to": "2015",
+      "client": "SANRAL",
+      "text": "HSG provided property-management work for the Manco-Aurecon Joint Venture, which was contracted to SANRAL to provide a comprehensive property service. HSG was also responsible for the preparation of property-related policies and was involved with training.",
+      "short": "Property-management work for the Manco-Aurecon joint venture, plus property policy and training."
+    },
+    {
+      "from": "1998",
+      "to": "2010",
+      "client": "SANRAL",
+      "text": "HSG participated in a joint venture contracted by Hermans & Roman Public Sector (Pty) Ltd to SANRAL, focusing on the resolution of land-related issues. HSG was also appointed to attend to conveyancing work on behalf of SANRAL during this time.",
+      "short": "Resolution of land-related issues and conveyancing within a joint venture contracted to SANRAL."
+    },
+    {
+      "from": "1996",
+      "to": "Current",
+      "client": "Royal Palm Property Holdings",
+      "text": "HSG has provided assistance to Royal Palm Property Holdings throughout the development and establishment of Palm Lakes estate. This has included processes such as the submission of the DFA Order, Township Establishment and the registration of erven.",
+      "short": "Legal work for the establishment of Palm Lakes estate: DFA order, township establishment and registration of erven."
+    },
+    {
+      "from": "1996",
+      "to": "2000",
+      "client": "KZN Department of Housing",
+      "text": "HSG was represented on the land-legal team established by the (then) KwaZulu-Natal Department of Housing responsible for resolving obstacles prejudicing the delivery of low-income housing opportunities. Shaun Hornby was involved in the preparation of numerous policies on behalf of the Provincial Housing and Development Board and in the training of public and private sector personnel involved in the delivery of housing.",
+      "short": "On the land-legal team resolving obstacles to low-income housing delivery."
+    },
+    {
+      "from": "1994",
+      "to": "Current",
+      "client": "First Group",
+      "text": "HSG has a long-standing history with First Group, including various matters in conveyancing, development and property law, legal advice and litigation. As a long-standing client, First Group has requested our assistance in all manner of matters throughout South Africa.",
+      "short": "Conveyancing, development and property law, advice and litigation for a long-standing client."
+    },
+    {
+      "from": "1994",
+      "to": "2002",
+      "client": "Cato Manor Development Association",
+      "text": "This Section 21 company was charged with facilitating the development of the Cato Manor area. David Smyly served as the land manager and Shaun Hornby served as its attorney. Notably, HSG represented the company when it obtained an order in terms of section 34 of the Restitution of Land Rights Act 22 of 1994 to enable large-scale opportunities for housing to be delivered to beneficiaries of this project.",
+      "short": "Attorney and land manager to the association; obtained a section 34 order under the Restitution of Land Rights Act."
+    }
+  ],
+  "values": [
+    {
+      "title": "A single focus",
+      "text": "Since 1990 the firm has worked in property, planning and environmental law and in little else. That focus is what we offer."
+    },
+    {
+      "title": "Public and private clients",
+      "text": "SANRAL, municipalities and provincial departments alongside developers, estates and private owners."
+    },
+    {
+      "title": "The whole process",
+      "text": "From land identification and acquisition, through planning and environmental approval, to registered transfer, one team keeps the file."
+    },
+    {
+      "title": "On the ground",
+      "text": "Community facilitation is part of how we work, so the social side of a project is handled as carefully as the legal side."
+    }
+  ]
+}

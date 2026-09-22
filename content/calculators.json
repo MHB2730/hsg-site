@@ -1,0 +1,131 @@
+{
+  "title": "Property cost calculators",
+  "lead": "Estimate transfer duty, conveyancing fees, bond registration costs and repayments before you commit. Rates are the current SARS, LSSA and Deeds Office tariffs.",
+  "note": "These are estimates. Ask us for a formal quote and we will confirm the figures for your transaction.",
+  "quoteLabel": "Request a formal quote",
+  "appNote": "The same calculators install to your phone and work offline.",
+  "appLabel": "Install the app",
+  "disclaimerTitle": "Disclaimer",
+  "disclaimer": [
+    "The ancillary costs will vary based on location.",
+    "Provision needs to be made by the user for advance municipal charges over the property (usually 3 months in advance).",
+    "For Sectional Title acquisitions, there are additional charges: provision for advance monthly levy payment should be made by the client as well as additional charges for more than one Unit and/or Exclusive Use Areas being purchased.",
+    "Conveyancing costs are increased annually.",
+    "All estimated calculations done here are provided for general information purposes only and do not constitute professional advice. We do not warrant the correctness of this information. For more accurate calculations, please contact us."
+  ],
+  "calculators": [
+    {
+      "id": "transfer",
+      "label": "Transfer costs",
+      "title": "What will the transfer cost?",
+      "intro": "The costs of transferring a property into your name, over and above the purchase price.",
+      "fields": [
+        {
+          "name": "price",
+          "label": "Purchase price",
+          "kind": "money",
+          "hint": "1 500 000",
+          "required": true
+        }
+      ],
+      "headline": "Total transfer costs",
+      "secondary": "Purchase price plus costs"
+    },
+    {
+      "id": "bond",
+      "label": "Bond registration",
+      "title": "What will registering the bond cost?",
+      "intro": "The costs of registering a mortgage bond over the property, payable to the bank's attorneys.",
+      "fields": [
+        {
+          "name": "loan",
+          "label": "Bond amount",
+          "kind": "money",
+          "hint": "1 200 000",
+          "required": true
+        }
+      ],
+      "headline": "Total bond registration costs",
+      "secondary": "Bond amount plus costs"
+    },
+    {
+      "id": "repayment",
+      "label": "Bond repayment",
+      "title": "What will the bond repayment be?",
+      "intro": "The monthly instalment on a mortgage bond, and what it adds up to over the term.",
+      "fields": [
+        {
+          "name": "loan",
+          "label": "Bond amount",
+          "kind": "money",
+          "hint": "1 200 000",
+          "required": true
+        },
+        {
+          "name": "rate",
+          "label": "Interest rate",
+          "kind": "percent",
+          "step": 0.25,
+          "hint": "11.25",
+          "required": true
+        },
+        {
+          "name": "years",
+          "label": "Term",
+          "kind": "years",
+          "step": 1,
+          "hint": "20",
+          "required": true
+        }
+      ],
+      "headline": "Monthly instalment",
+      "secondary": "Total repaid over the term"
+    },
+    {
+      "id": "affordability",
+      "label": "Affordability",
+      "title": "What can I afford?",
+      "intro": "An indication of the bond and purchase price your income could support. Banks apply their own criteria.",
+      "fields": [
+        {
+          "name": "income",
+          "label": "Gross monthly income",
+          "kind": "money",
+          "hint": "60 000",
+          "required": true
+        },
+        {
+          "name": "expenses",
+          "label": "Monthly expenses",
+          "kind": "money",
+          "hint": "20 000"
+        },
+        {
+          "name": "deposit",
+          "label": "Deposit",
+          "kind": "money",
+          "hint": "0"
+        },
+        {
+          "name": "rate",
+          "label": "Interest rate",
+          "kind": "percent",
+          "step": 0.25,
+          "hint": "11.25",
+          "required": true
+        },
+        {
+          "name": "years",
+          "label": "Term",
+          "kind": "years",
+          "step": 1,
+          "hint": "20",
+          "required": true
+        }
+      ],
+      "headline": "Indicative purchase price",
+      "secondary": "Maximum bond"
+    }
+  ],
+  "emptyState": "—"
+}

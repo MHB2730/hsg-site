@@ -1,0 +1,91 @@
+{
+  "title": "From LinkedIn",
+  "intro": "Selected posts from the firm's LinkedIn page.",
+  "privacyNote": "The posts are loaded from LinkedIn, which may set cookies in your browser.",
+  "followLabel": "Follow HSG on LinkedIn",
+  "_howTo": "To add a post: open it on LinkedIn, choose 'Embed this post' from its ⋯ menu, and paste the whole <iframe …> snippet as `embed` below. A plain post link or a bare urn (urn:li:share:… / urn:li:activity:… / urn:li:ugcPost:…) works just as well — put whichever you have in `embed`. `caption` is the line shown before the post loads, so it should say what the post is about; `date` is YYYY-MM-DD and may be left empty. Newest first. An empty list removes the section.",
+  "posts": [
+    {
+      "embed": "<iframe src=\"https://www.linkedin.com/embed/feed/update/urn:li:share:7508047056624574464?collapsed=1\" height=\"669\" width=\"504\" frameborder=\"0\" allowfullscreen=\"\" title=\"Embedded post\"></iframe>",
+      "caption": "Securing land rights before infrastructure begins",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_environmentallaw-environmentalcompliance-activity-7502965222689718272-d54D",
+      "caption": "Environmental compliance does not end at authorisation",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_hsgattorneys-admittedattorney-activity-7502620195946049537-hTFI",
+      "caption": "Congratulations to Basanda on her admission as an attorney",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_legal-expertise-built-into-the-project-activity-7501515671080640513-StSq",
+      "caption": "Legal expertise, built into the project",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_good-conversations-good-company-and-a-great-activity-7500133358383939584-rk7k",
+      "caption": "Good conversations, good company and a great braai",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_hsgattorneys-propertylaw-conveyancing-activity-7498292951459110912-w9pp",
+      "caption": "When a title deed is lost or damaged",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_hsgattorneys-southafricanlaw-matrimonialproperty-activity-7495366450560462849-sIT9",
+      "caption": "In or out of community of property: know what you are agreeing to",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_poll-results-are-in-thank-you-to-everyone-activity-7492861764620038144-47bo",
+      "caption": "Poll results: servitudes, and what they mean for a property",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_propertydevelopment-townplanning-commercialproperty-activity-7491375215399280640-XNyT",
+      "caption": "A development project starts long before the first brick",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_investing-in-tomorrows-legal-professionals-activity-7489923010456358912-b7Ps",
+      "caption": "Investing in tomorrow’s legal professionals",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_whywechoselaw-hsgattorneys-meettheteam-activity-7488134830484889600-jY_h",
+      "caption": "Meet the team: Ntombizonke Madlala on why she chose law",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_strong-partnerships-are-built-long-before-activity-7485957144110940161--6jj",
+      "caption": "Strong partnerships are built long before the final handshake",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_hsgattorneys-propertylaw-conveyancing-activity-7485574425833078784-lBRd",
+      "caption": "Know the numbers before you sign: the property cost calculators",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_yesterday-hsg-attorneys-was-proud-to-sponsor-activity-7476244787419840512-X6l5",
+      "caption": "Sponsoring the 4th hole at the HuntCup Golf Day",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_saiv-northernbranchagm-psivaluation-activity-7439278487959388161-gwD8",
+      "caption": "Jacques de Villiers on valuing public service infrastructure, at the SAIV Northern Branch AGM",
+      "date": ""
+    },
+    {
+      "embed": "https://www.linkedin.com/posts/hsg-attorneys-inc_municipal-rates-objection-process-a-practical-activity-7437735380696694784-cgfS",
+      "caption": "Challenging municipal property valuations: the objection process",
+      "date": ""
+    }
+  ],
+  "moreLabel": "Show more posts",
+  "initialCount": 6
+}

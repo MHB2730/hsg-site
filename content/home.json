@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "eyebrow": "Property · Land · Planning · Environmental",
+    "title": "Specialist attorneys for land, property and development",
+    "lead": "Since 1990 we have worked in conveyancing, planning, environmental and land-legal matters for developers, communities and government, from offices in Durban and Cape Town.",
+    "primary": { "label": "Start a matter", "href": "/contact/" },
+    "secondary": { "label": "What we do", "href": "#practice" }
+  },
+  "practice": {
+    "eyebrow": "What we do",
+    "title": "Thirteen disciplines, four areas of practice",
+    "text": "Organised the way a development moves: from the ground, through approval, to transfer and beyond. Choose an area to see the work within it."
+  },
+  "firm": {
+    "eyebrow": "The firm",
+    "title": "The legal work between land and development",
+    "text": "HSG was established in 1990 as South Africa’s first specialist environmental law firm. We work alongside clients and built-environment specialists through the whole property-development process: land identification and tenure, planning and environmental approval, and registered transfer.",
+    "image": "scenes/directors-plans.jpg",
+    "imageAlt": "HSG directors reviewing a site development plan",
+    "imageHint": "Move over the photo to see it in colour",
+    "link": { "label": "About the firm", "href": "/about/" }
+  },
+  "appointments": {
+    "eyebrow": "Appointments",
+    "title": "Work entrusted to the firm since 1994",
+    "text": "Property portfolios, land-legal teams and development projects for government, communities and private clients."
+  },
+  "people": {
+    "eyebrow": "People",
+    "title": "Directors lead each matter",
+    "text": "Supported by associates, candidate attorneys, conveyancing secretaries and a property-administration team of more than sixty."
+  },
+  "tools": {
+    "calculators": { "title": "Transfer and bond cost calculators", "text": "Estimate transfer duty, conveyancing fees and bond registration costs, and ask for a formal quote from the result.", "label": "Open the calculators" },
+    "insights": { "title": "Insights", "text": "Occasional commentary on planning, tenure and environmental developments in the sector.", "label": "Read the articles" }
+  },
+  "contact": {
+    "eyebrow": "Get in touch",
+    "title": "Tell us where the matter stands",
+    "text": "A short description is enough to start. Every enquiry is treated as confidential and we will come back to you.",
+    "label": "Send an enquiry"
+  }
+}

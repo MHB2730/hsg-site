@@ -1,0 +1,106 @@
+{
+  "name": "HSG Attorneys",
+  "legalName": "HSG Inc. (Hornby, Smyly, Glavovic Inc.)",
+  "group": "GeoAfrika Group",
+  "url": "https://hsgattorneys.co.za",
+  "tagline": "Specialist attorneys for land, property and development",
+  "description": "HSG Attorneys is a South African law firm working in property, land, planning and environmental law since 1990, with offices in Durban and Cape Town.",
+  "founded": 1990,
+  "email": "legal@hsginc.co.za",
+  "whatsapp": "+27 63 729 2207",
+  "linkedin": "https://www.linkedin.com/company/hsg-attorneys-inc/",
+  "video": {
+    "youtubeId": "i2osokkB9oE",
+    "title": "HSG Attorneys — firm profile"
+  },
+  "calculatorsUrl": "https://app.hsgattorneys.co.za/",
+  "offices": [
+    {
+      "id": "durban",
+      "city": "Durban",
+      "region": "KwaZulu-Natal",
+      "phones": [
+        "+27 31 266 7751",
+        "+27 31 266 7790"
+      ],
+      "address": [
+        "15 Acacia Avenue",
+        "Westville, 3629"
+      ],
+      "postal": [
+        "PO Box 1429, Westville, 3630",
+        "Docex 24, Westville"
+      ],
+      "mapQuery": "15 Acacia Avenue, Westville, 3629"
+    },
+    {
+      "id": "cape-town",
+      "city": "Cape Town",
+      "region": "Western Cape",
+      "phones": [
+        "+27 21 271 0900"
+      ],
+      "address": [
+        "Unit FO309, 3rd Floor, Mariendahl House",
+        "Newlands On Main, Newlands, 7700"
+      ],
+      "postal": [],
+      "mapQuery": "Mariendahl House, Newlands On Main, Cnr Main Rd & Camp Grounds Rd, Newlands, 7700, Cape Town"
+    }
+  ],
+  "stats": [
+    {
+      "value": 1990,
+      "label": "Established",
+      "note": "The first specialist environmental law firm in South Africa",
+      "raw": true
+    },
+    {
+      "value": 65,
+      "suffix": "+",
+      "label": "People",
+      "note": "Durban and Cape Town"
+    },
+    {
+      "value": 13,
+      "label": "Areas of practice",
+      "note": "Across four pillars"
+    },
+    {
+      "value": 1,
+      "prefix": "Level ",
+      "label": "B-BBEE contributor",
+      "note": "One-third black ownership"
+    }
+  ],
+  "nav": [
+    {
+      "label": "Practice",
+      "href": "/practice/"
+    },
+    {
+      "label": "About",
+      "href": "/about/"
+    },
+    {
+      "label": "People",
+      "href": "/team/"
+    },
+    {
+      "label": "Insights",
+      "href": "/insights/"
+    },
+    {
+      "label": "Calculators",
+      "href": "/calculators/"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact/"
+    }
+  ],
+  "cta": {
+    "label": "Start a matter",
+    "href": "/contact/"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.zip
+mail-config.php
+*.log.jsonl
+.DS_Store
+Thumbs.db
+build/

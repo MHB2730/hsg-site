@@ -1,0 +1,22 @@
+{
+  "name": "hsg-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "hsgattorneys.co.za \u2014 static site generated from JSON content",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/images.mjs && node scripts/build.mjs",
+    "build:pages": "node scripts/build.mjs",
+    "images": "node scripts/images.mjs",
+    "serve": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs && node scripts/copy-lint.mjs",
+    "pack": "node scripts/pack.mjs",
+    "test:calc": "node scripts/test-calc.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.3"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true
+  }
+}

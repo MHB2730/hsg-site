@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" x="0px" y="0px" viewBox="0 0 99.2 99.2" style="enable-background:new 0 0 99.2 99.2;" xml:space="preserve">
+<style type="text/css">
+	.st0{clip-path:url(#XMLID_2_);}
+	.st1{fill:none;stroke:#231F20;stroke-miterlimit:10;}
+	.st2{fill:#FFFFFF;stroke:#231F20;stroke-miterlimit:10;}
+	.st3{clip-path:url(#XMLID_3_);fill:none;stroke:#231F20;stroke-miterlimit:10;}
+	.st4{clip-path:url(#XMLID_3_);}
+	.st5{clip-path:url(#XMLID_3_);fill:#FFFFFF;stroke:#231F20;stroke-miterlimit:10;}
+</style>
+<g>
+	<g>
+		<defs>
+			<circle id="XMLID_4_" cx="183.1" cy="49.6" r="48.4"></circle>
+		</defs>
+		<clipPath id="XMLID_2_">
+			<use xlink:href="#XMLID_4_" style="overflow:visible;"></use>
+		</clipPath>
+		<g class="st0">
+			<g>
+				<polyline class="st1" points="155.5,95.8 155.5,61.4 182.8,37.5 210,61.4 210,95.8     "></polyline>
+			</g>
+		</g>
+		<use xlink:href="#XMLID_4_" style="overflow:visible;fill:none;stroke:#231F20;stroke-miterlimit:10;"></use>
+	</g>
+	<path class="st1" d="M173.7,45.5c-1.9-2.1-3-4.9-3-8c0-6.7,5.4-12.1,12.1-12.1s12.1,5.4,12.1,12.1c0,3-1.1,5.8-3,8"></path>
+	<line class="st1" x1="182.8" y1="25.4" x2="182.8" y2="1.2"></line>
+	<line class="st1" x1="170.7" y1="37.5" x2="136.3" y2="37.5"></line>
+	<line class="st1" x1="229.9" y1="37.5" x2="194.9" y2="37.5"></line>
+	<g>
+		<line class="st1" x1="174.4" y1="28.9" x2="155.5" y2="10.1"></line>
+		<line class="st1" x1="191.2" y1="28.9" x2="210.4" y2="9.7"></line>
+	</g>
+</g>
+<g>
+	<circle id="XMLID_16_" class="st1" cx="183.1" cy="49.6" r="48.4"></circle>
+	<polyline class="st1" points="203.7,93.4 179.2,54.5 187.1,49.6 211.6,88.6  "></polyline>
+	<g>
+		<circle id="XMLID_15_" class="st2" cx="183.1" cy="49.6" r="35.3"></circle>
+		<circle id="XMLID_17_" class="st2" cx="183.1" cy="49.6" r="24.9"></circle>
+		<g>
+			<g>
+				<polyline class="st1" points="170.9,62.6 170.9,47.2 183.1,36.6 195.3,47.2 195.3,62.6     "></polyline>
+			</g>
+		</g>
+		<line class="st1" x1="161.8" y1="62.6" x2="203.9" y2="62.6"></line>
+	</g>
+	<line class="st1" x1="212" y1="69.9" x2="227" y2="69.9"></line>
+	<line class="st1" x1="139.2" y1="69.9" x2="154.3" y2="69.9"></line>
+</g>
+<g>
+	<g>
+		<defs>
+			<circle id="XMLID_12_" cx="49.6" cy="49.6" r="48.4"></circle>
+		</defs>
+		<clipPath id="XMLID_3_">
+			<use xlink:href="#XMLID_12_" style="overflow:visible;"></use>
+		</clipPath>
+		<path class="st3" d="M21.7,101.5h-56.4V20.2H6.2c8.6,0,15.5,7,15.5,15.5V101.5z"></path>
+		<path class="st3" d="M78.1,101.5H21.7V35.7c0-8.6,7-15.5,15.5-15.5h40.9V101.5z"></path>
+		<polyline class="st3" points="67.5,60.1 36,60.1 36,39.8 49.9,32.8 63.9,39.8 63.9,54.5   "></polyline>
+		<g class="st4">
+			<g>
+				<line class="st1" x1="35.5" y1="68.9" x2="64.3" y2="68.9"></line>
+				<line class="st1" x1="35.5" y1="73.5" x2="64.3" y2="73.5"></line>
+				<line class="st1" x1="35.5" y1="78.1" x2="64.3" y2="78.1"></line>
+				<line class="st1" x1="35.5" y1="82.7" x2="64.3" y2="82.7"></line>
+			</g>
+		</g>
+		<polygon class="st5" points="72.6,64.7 67.5,60.1 72.6,55.4 112.7,55.4 112.7,64.7   "></polygon>
+		<use xlink:href="#XMLID_12_" style="overflow:visible;fill:none;stroke:#231F20;stroke-miterlimit:10;"></use>
+	</g>
+</g>
+<polygon class="st1" points="194.9,45.8 194.9,61.1 171.3,61.1 171.3,45.8 183.1,38.1 "></polygon>
+</svg>
