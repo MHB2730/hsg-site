@@ -92,6 +92,11 @@ literals (`scripts/lib/html.mjs` holds the shared header/footer/head), writes th
 sitemap, robots.txt, `.htaccess` (with redirects) and copies the server files.
 Only files whose source changed are re-encoded, so rebuilds take seconds.
 
+Team photos use the largest original in the old media library, not the resized copy the
+old site linked to. Six directors (Odwa, Karl, Jacques, Fuad, Tess, Warda) are still
+limited to 350px because no larger file exists anywhere — they need a new photograph
+before those profile pages can look sharp.
+
 `scripts/import-wordpress.mjs` is the one-off importer that produced the initial
 content from the old WordPress site. It is kept for the record; **re-running it would
 overwrite hand edits in `content/`**, so do not run it unless you mean to.

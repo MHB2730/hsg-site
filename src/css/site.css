@@ -602,3 +602,7 @@ a.person:hover .person-photo img, a.person:focus-visible .person-photo img { fil
 .li-open { margin: 0; padding: .9rem 1.25rem; border-top: 1px solid var(--line); }
 .li-actions { margin-top: clamp(1.5rem, 3vw, 2.25rem); }
 .li-feed .fine { margin-top: .9rem; }
+
+/* A photograph used as a band between sections. */
+.lens-wide { aspect-ratio: 21 / 9; }
+@media (max-width: 700px) { .lens-wide { aspect-ratio: 3 / 2; } }

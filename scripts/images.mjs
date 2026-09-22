@@ -11,7 +11,7 @@ import { join, basename, extname, relative, sep } from 'node:path';
 
 const SRC = 'images/src', OUT = 'dist/images', MANIFEST = 'build/images.json';
 const RULES = {
-  team:      { widths: [320, 640],        square: true,  grey: false, quality: 80 },
+  team:      { widths: [320, 640, 960],   square: true,  grey: false, quality: 80 },
   scenes:    { widths: [720, 1280, 1920], square: false, grey: true,  quality: 74, colourToo: true },
   projects:  { widths: [480, 960, 1400],  square: false, grey: true,  quality: 74 },
   articles:  { widths: [480, 960, 1400],  square: false, grey: true,  quality: 74 },

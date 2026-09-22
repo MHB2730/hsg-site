@@ -115,6 +115,16 @@ const contactCard = (title = 'Talk to us about your matter') => `<div class="con
 
 const statTile = s => `<div class="stat"><div class="stat-value">${s.prefix ? `<small>${esc(s.prefix)}</small>` : ''}<span data-count="${s.value}"${s.raw ? ' data-raw="1"' : ''}>${s.value}</span>${s.suffix ? `<small>${esc(s.suffix)}</small>` : ''}</div><div class="stat-label">${esc(s.label)}</div><div class="stat-note">${esc(s.note)}</div></div>`;
 
+
+/** A full-width photograph between sections, greyscale until the cursor passes over it. */
+const bandImage = (key, alt, hint = 'Move over the photo to see it in colour') => `<div class="wrap section-tight">
+  <div class="lens lens-wide" data-reveal>
+    ${img(key, { alt, sizes: '(max-width: 1280px) 100vw, 1280px' })}
+    ${img(key, { alt: '', sizes: '(max-width: 1280px) 100vw, 1280px', cls: 'lens-colour', colour: true })}
+    <span class="lens-hint">${esc(hint)}</span>
+  </div>
+</div>`;
+
 /* ---------- home ---------- */
 function renderHome() {
   const h = home.hero, f = home.firm;
@@ -281,6 +291,7 @@ ${subnav}
   </div>
 </section>
 
+${bandImage('scenes/library-shelf', 'An attorney at the firm’s law library')}
 <section class="section ruled" id="history">
   <div class="wrap split">
     <div data-reveal>
@@ -330,6 +341,10 @@ ${subnav}
     <div class="section-head">
       <div data-reveal><p class="eyebrow">Projects</p><h2 class="h2">Built-environment projects the firm has worked on</h2></div>
     </div>
+    <div class="lens lens-wide mb-2" data-reveal>
+      ${img('scenes/site-plan', { alt: 'A development layout plan on the wall of the firm’s offices', sizes: '(max-width: 1280px) 100vw, 1280px' })}
+      ${img('scenes/site-plan', { alt: '', sizes: '(max-width: 1280px) 100vw, 1280px', cls: 'lens-colour', colour: true })}
+    </div>
     <div class="cards">
       ${projects.map((p, i) => `<a class="card" href="/about/projects/${p.slug}/" data-reveal style="--i:${i}"><div class="card-media">${p.image && hasImage(p.image) ? img(p.image, { alt: p.imageAlt || p.title, sizes: '(max-width: 600px) 100vw, 33vw' }) : ''}</div><div class="card-body"><h3>${esc(p.title)}</h3><p>${esc(p.excerpt)}</p><span class="link"><span>Read the case study</span>${arrow()}</span></div></a>`).join('')}
     </div>
@@ -372,6 +387,7 @@ ${pageHead({ crumbs: [['Home', '/'], ['People']], eyebrow: 'People', title: 'The
     ${sectionOrder.map(s => { const list = team.filter(p => p.section === s); return list.length ? `<div class="person-group" data-section="${s}" id="${s}"><h2 class="serif">${sectionTitles[s]}</h2><div class="people">${list.map(personCard).join('')}</div></div>` : ''; }).join('')}
   </div>
 </section>
+${bandImage('scenes/office-stairs', 'People on the stairs outside the firm’s offices')}
 ${contactBand()}`;
   write('/team/', page({ title: 'People', description: 'The directors, associates and professionals of HSG Attorneys in Durban and Cape Town.', path: '/team/', body, jsonld: [breadcrumbLd([['Home', '/'], ['People', '/team/']])] }));
 
