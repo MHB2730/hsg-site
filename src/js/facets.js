@@ -69,18 +69,29 @@
       dpr = Math.min(devicePixelRatio || 1, 1.5);
       dw = Math.round(W * dpr); dh = Math.round(H * dpr);
       canvas.width = dw; canvas.height = dh; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-      const narrow = W < 800, m = Math.min(W, H), tall = H > W * .5;
-      // Placements: centre (fractions of the box) and emblem width in px. The mark sits
-      // clear of the text; on a tall box a smaller one is cut by the far corner.
+      // Anything inside the host marked [data-facets-clear] — the hero's figures row —
+      // must stay readable, so the mark is placed within the band above it rather than
+      // across the whole box. Without such a child this is simply the full height.
+      let FH = H;
+      for (const el of host.querySelectorAll('[data-facets-clear]')) {
+        const r = el.getBoundingClientRect();
+        FH = Math.min(FH, r.top - rect.top);
+      }
+      FH = Math.max(H * .5, FH);
+
+      const narrow = W < 800, m = Math.min(W, FH), tall = FH > W * .5;
+      // Placements: centre (fractions of the band) and emblem width in px. On a tall box
+      // a second, smaller mark is cut by the bottom-left corner — but that one lives in
+      // the space the cleared row now occupies, so it is dropped when there is one.
       const places = narrow
         ? [{ x: .5, y: .36, w: m * 1.09 }]
-        : tall ? [{ x: .68, y: .47, w: m * .87 }, { x: .07, y: 1.02, w: m * .36 }]
-               : [{ x: .74, y: .55, w: H * 1.33 }];
+        : tall ? [{ x: .68, y: .47, w: m * .87 }, ...(FH < H ? [] : [{ x: .07, y: 1.02, w: m * .36 }])]
+               : [{ x: .74, y: .55, w: FH * 1.33 }];
       // Rim and dividers as pixel-space polylines: they are both what gets stroked and
       // the paths the idle light walks along.
       const chains = [];
       for (const p of places) {
-        const place = poly => poly.map(([x, y]) => [p.x * W + (x - CX) * (p.w / VB), p.y * H + (y - CY) * (p.w / VB)]);
+        const place = poly => poly.map(([x, y]) => [p.x * W + (x - CX) * (p.w / VB), p.y * FH + (y - CY) * (p.w / VB)]);
         chains.push({ ...measure(closed(place(OUTLINE))), width: 1 });
         for (const dvd of DIVIDERS) chains.push({ ...measure(place(dvd)), width: .9 });
       }
@@ -89,6 +100,10 @@
         const x = c.getContext('2d');
         x.setTransform(dpr, 0, 0, dpr, 0, 0);
         x.clearRect(0, 0, W, H);
+        // Baked in, so no placement — including the wide one, which is meant to bleed
+        // past its band — can put a line over the row that has to stay readable. The cut
+        // falls on the rule above that row, so it reads as the mark being cropped by it.
+        if (FH < H) { x.beginPath(); x.rect(0, 0, W, FH); x.clip(); }
         x.strokeStyle = '#fff'; x.lineJoin = 'round'; x.lineCap = 'round'; x.globalAlpha = alphaMul;
         if (blur) { x.shadowColor = '#fff'; x.shadowBlur = blur; }
         for (const ch of chains) {
@@ -193,6 +208,9 @@
     }, { passive: true });
     addEventListener('scroll', () => { rect = null; }, { passive: true });
     new ResizeObserver(() => { clearTimeout(rebakeTimer); rebakeTimer = setTimeout(bake, 150); }).observe(host);
+    // The placement is measured against the children it has to keep clear of, and web
+    // fonts can still move those after the first bake without resizing the host itself.
+    document.fonts?.ready.then(bake).catch(() => {});
     new IntersectionObserver(([e]) => e.isIntersecting ? start() : stop(), { threshold: 0 }).observe(host);
     document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
     start();

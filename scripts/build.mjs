@@ -137,7 +137,7 @@ function renderHome() {
     <p class="lead" data-reveal="fade" style="--i:4">${esc(h.lead)}</p>
     <div class="btn-row" data-reveal="fade" style="--i:5"><a class="btn" href="${h.primary.href}">${esc(h.primary.label)}${arrow()}</a><a class="btn btn-ghost" href="${h.secondary.href}">${esc(h.secondary.label)}</a></div>
   </div>
-  <div class="wrap hero-stats" data-reveal="fade" style="--i:6">${site.stats.map(statTile).join('')}</div>
+  <div class="wrap hero-stats" data-facets-clear data-reveal="fade" style="--i:6">${site.stats.map(statTile).join('')}</div>
   <div class="marquee" aria-hidden="true"><div class="marquee-track">${marqueeItems}${marqueeItems}</div></div>
 </section>
 
