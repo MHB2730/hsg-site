@@ -6,7 +6,7 @@
 // files and documents are copied as-is. Outputs are only regenerated when the source
 // is newer, so re-runs are quick.
 import sharp from 'sharp';
-import { readdirSync, statSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, existsSync } from 'node:fs';
+import { readdirSync, statSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, existsSync, unlinkSync } from 'node:fs';
 import { join, basename, extname, relative, sep } from 'node:path';
 
 const SRC = 'images/src', OUT = 'dist/images', MANIFEST = 'build/images.json';
@@ -16,7 +16,10 @@ const RULES = {
   projects:  { widths: [480, 960, 1400],  square: false, grey: true,  quality: 74 },
   articles:  { widths: [480, 960, 1400],  square: false, grey: true,  quality: 74 },
 };
-const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) : {};
+// Built fresh every run: a key that is not rebuilt is a source that no longer exists.
+const manifest = {};
+const produced = new Set();          // every output this run owns; anything else under OUT is an orphan
+const owns = p => { produced.add(p.split(sep).join('/')); return p; };
 let made = 0, kept = 0;
 
 function walk(dir) { return readdirSync(dir).flatMap(f => { const p = join(dir, f); return statSync(p).isDirectory() ? walk(p) : [p]; }); }
@@ -50,7 +53,7 @@ for (const file of walk(SRC)) {
         .replace(/\s+/g, ' ').replace(/>\s+</g, '><');
       manifest[key] = { type: 'inline-svg', svg };
     } else {
-      const out = join(outDir, `${name}.svg`);
+      const out = owns(join(outDir, `${name}.svg`));
       if (newer(file, out)) { writeFileSync(out, svg); made++; } else kept++;
       manifest[key] = { type: 'file', src: `/images/${folder}/${name}.svg` };
     }
@@ -58,7 +61,7 @@ for (const file of walk(SRC)) {
   }
   if (!RULES[folder]) {
     // brand PNGs, PDFs: copy through untouched.
-    const out = join(outDir, basename(rel));
+    const out = owns(join(outDir, basename(rel)));
     if (newer(file, out)) { copyFileSync(file, out); made++; } else kept++;
     const meta = /\.(png|jpe?g|webp)$/.test(ext) ? await sharp(file).metadata() : {};
     manifest[key] = { type: 'file', src: `/images/${folder}/${basename(rel)}`, width: meta.width, height: meta.height };
@@ -80,7 +83,7 @@ for (const file of walk(SRC)) {
     // page can reveal colour on interaction without a second source image.
     const passes = rule.grey && rule.colourToo ? [['', true], ['-colour', false]] : [['', rule.grey]];
     for (const [suffix, grey] of passes) {
-      const out = join(outDir, `${name}-${w}${suffix}.webp`);
+      const out = owns(join(outDir, `${name}-${w}${suffix}.webp`));
       (suffix ? colour : variants).push({ w, src: `/images/${folder}/${name}-${w}${suffix}.webp` });
       if (!newer(file, out)) { kept++; continue; }
       let img = sharp(file).rotate();
@@ -95,6 +98,17 @@ for (const file of walk(SRC)) {
   manifest[key] = { type: 'photo', variants, ...(colour.length ? { colour } : {}), width: largest, height: Math.round(largest * ratio), ratio: +ratio.toFixed(4) };
 }
 
+// Delete outputs whose source has gone — a replaced or renamed photo used to leave
+// its old sizes behind in dist/, so a stale headshot could still be shipped.
+// build.mjs writes the social card into the same folder; it is not ours to remove.
+const NOT_OURS = new Set(['dist/images/og-default.jpg']);
+let gone = 0;
+if (existsSync(OUT)) for (const p of walk(OUT)) {
+  const rel = p.split(sep).join('/');
+  if (produced.has(rel) || NOT_OURS.has(rel)) continue;
+  unlinkSync(p); gone++;
+}
+
 mkdirSync('build', { recursive: true });
 writeFileSync(MANIFEST, JSON.stringify(manifest, null, 1));
-console.log(`images: ${made} written, ${kept} up to date, ${Object.keys(manifest).length} entries`);
+console.log(`images: ${made} written, ${kept} up to date${gone ? `, ${gone} stale removed` : ''}, ${Object.keys(manifest).length} entries`);
