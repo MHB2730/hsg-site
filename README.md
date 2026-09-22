@@ -133,7 +133,8 @@ left-aligned so nothing short is stretched.
 
 ## Conventions
 - Brand: black chrome (`--chrome`), white paper, greys — no accent colour.
-- Type: Instrument Serif for display, Instrument Sans for text (self-hosted, OFL).
+- Type: Jost for display, Instrument Sans for text (self-hosted, OFL). Jost is a
+  geometric sans in the same family of shapes as the lettering in the HSG logo.
 - Motion respects `prefers-reduced-motion`; third parties (YouTube, Google Maps) load
   only when a visitor clicks their facade, which keeps the CSP strict.
 - Every page: one `<h1>`, a meta description, canonical URL, Open Graph tags and

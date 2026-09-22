@@ -133,7 +133,7 @@ ${noindex ? '<meta name="robots" content="noindex, follow">' : ''}
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/jost-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/instrument-sans-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/site.css?v=${assets.css}">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
