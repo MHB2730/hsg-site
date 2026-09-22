@@ -33,6 +33,26 @@ This is how the directors see it before anything touches the live site.
 Send the directors: the address, the login if you set one, and a note that it is a
 draft for comment.
 
+## 1b. Or put it in a folder of the WordPress site (no subdomain needed)
+If creating a subdomain is awkward, the review copy can live *inside* the current site
+at `hsgattorneys.co.za/review/`. WordPress serves real files and folders before its own
+routing, so it does not interfere — and WordPress itself is untouched.
+
+1. `npm run pack:review` → `hsg-site-staging.zip`, built for that folder and noindex.
+2. In File Manager, open `public_html`, create a folder named `review`, upload the zip
+   into it and **Extract**. (If you have no hosting access at all, a WordPress
+   file-manager plugin can do the same job — but see the warning below.)
+3. Copy `mail-config.php` in beside the extracted files if you want the form to send.
+4. Password-protect the `review` folder as in step 5 above, then send the directors
+   `https://hsgattorneys.co.za/review/`.
+
+The folder name is baked into the links, so `--base=review` must match the folder you
+create. To use a different name, rebuild with `node scripts/build.mjs --staging --base=yourname`.
+
+**Warning about file-manager plugins:** they run as WordPress, so a mistake can damage
+the live site, and they are a common target for attacks. Prefer real hosting access;
+if you must use one, install it, do the upload, then remove it.
+
 ## 2. Cut over (replaces WordPress)
 1. cPanel → File Manager → the main document root (`public_html`). **Rename** it to
    `public_html_wordpress` rather than deleting it (instant rollback), then create a

@@ -98,8 +98,8 @@ function footer() {
 /**
  * Full document. `path` is the canonical path ("/practice/planning-law/").
  */
-export function layout({ title, description, path, body, bodyClass = '', ogImage = '/images/og-default.jpg', jsonld = [], noindex = false, module = '', assets }) {
-  const url = site.url + path;
+export function layout({ title, description, path, body, bodyClass = '', ogImage = '/images/og-default.jpg', jsonld = [], noindex = false, module = '', base = '', assets }) {
+  const url = site.url + base + path;
   const fullTitle = path === '/' ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
   const ld = [
     {

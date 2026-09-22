@@ -20,6 +20,7 @@ npm run check        # JS parses, links / headings / alt text, copy consistency
 npm run test:calc    # calculator figures, to check parity with the app
 npm run pack         # dist/ → hsg-site.zip for cPanel
 npm run pack:staging # same, but noindex throughout → hsg-site-staging.zip (review copies)
+npm run pack:review  # noindex AND built for a subfolder (hsgattorneys.co.za/review/)
 ```
 
 ## Editing content
@@ -68,6 +69,15 @@ prints the figures for R1m / R2m / R3m / R5m to check parity against the app.
 
 **If a rate changes, update it in both places** — this repo's `tariffs.json` and the app's
 — or the two will disagree.
+
+## Where it can live
+
+By default every link and asset is root-relative, so the site expects to own the web
+root — `npm run pack` for that. `--base=review` rewrites them all to sit under a
+subfolder instead (`npm run pack:review`), which lets the site run *inside* the
+existing WordPress site at `hsgattorneys.co.za/review/` without touching WordPress:
+WordPress serves real files and folders before its own routing, so the folder just
+works. Handy for showing people, and it needs no subdomain and no DNS.
 
 ## How the build works
 

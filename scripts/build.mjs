@@ -25,14 +25,38 @@ const assets = { css: hash('src/css/site.css'), js: hash('src/js/site.js'), face
 const pages = []; // [path, lastmod?] for the sitemap
 let written = 0;
 
+// `--base=/folder` builds the site to live in a subfolder rather than at the web root,
+// e.g. inside the existing WordPress site at hsgattorneys.co.za/folder/. Every link and
+// asset in the site is root-relative, so they are rewritten to carry the prefix.
+// Give it a plain folder name — `--base=review`. (A leading slash also works, but Git
+// Bash on Windows rewrites a leading-slash argument into a filesystem path, so the
+// mangled form is caught below rather than silently building broken links.)
+const BASE = (() => {
+  let v = ((process.argv.find(a => a.startsWith('--base=')) || '').split('=')[1] || '').trim();
+  if (!v) return '';
+  if (/^[A-Za-z]:[\\/]/.test(v) || v.includes('Program Files')) {
+    console.error(`--base looks like a filesystem path (${v}). Pass a plain folder name, e.g. --base=review`);
+    process.exit(1);
+  }
+  v = v.replace(/\/+$/, '');
+  return v.startsWith('/') ? v : '/' + v;
+})();
+const rebase = text => BASE
+  ? text
+      .replace(/(href|src|action)="\/(?!\/)/g, `$1="${BASE}/`)      // links, assets, form posts
+      .replace(/srcset="([^"]+)"/g, (m, v) => `srcset="${v.replace(/(^|,\s*)\//g, `$1${BASE}/`)}"`)
+      .replace(/url\(\/(?!\/)/g, `url(${BASE}/`)                     // css
+      .replace(/(['"])\/(tariffs\.json|contact\/|contact\.php)/g, `$1${BASE}/$2`)  // js literals
+  : text;
+
 function write(path, html, { lastmod, sitemap = true } = {}) {
   const file = path.endsWith('/') ? join('dist', path, 'index.html') : join('dist', path);
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, html.replace(/\n\s*\n/g, '\n'));
+  writeFileSync(file, rebase(html.replace(/\n\s*\n/g, '\n')));
   if (sitemap) pages.push([path, lastmod]);
   written++;
 }
-const page = (opts) => layout({ ...opts, assets, noindex: opts.noindex || STAGING });
+const page = (opts) => layout({ ...opts, assets, noindex: opts.noindex || STAGING, base: BASE });
 
 /* ---------- reusable fragments ---------- */
 const byPillar = id => services.filter(s => s.pillar === id);
@@ -598,6 +622,9 @@ function renderNotFound() {
 async function copyStatic() {
   cpSync('src/css', 'dist/css', { recursive: true });
   cpSync('src/js', 'dist/js', { recursive: true });
+  if (BASE) for (const dir of ['dist/css', 'dist/js']) {
+    for (const f of readdirSync(dir)) writeFileSync(join(dir, f), rebase(readFileSync(join(dir, f), 'utf8')));
+  }
   cpSync('src/fonts', 'dist/fonts', { recursive: true });
   cpSync('images/src/brand/favicon.svg', 'dist/favicon.svg');
   cpSync('tariffs.json', 'dist/tariffs.json');
@@ -612,6 +639,15 @@ async function copyStatic() {
   if (STAGING) {
     const tag = ['<IfModule mod_headers.c>', '  Header always set X-Robots-Tag "noindex, nofollow"'].join('\n');
     ht = ht.replace('<IfModule mod_headers.c>', tag, 1);
+  }
+  if (BASE) {
+    // The parent site owns HTTPS, the canonical host and the old-URL redirects; a
+    // subfolder only needs its own index, error page, caching and deny rules.
+    const NL = '\n';
+    ht = ['Options -Indexes -MultiViews', 'DirectoryIndex index.html', `ErrorDocument 404 ${BASE}/404.html`, 'AddDefaultCharset utf-8', '',
+      ht.slice(ht.indexOf('# ---- Security headers ----'))].join(NL)
+      .replace(/^RedirectMatch .*$/gm, '')
+      .replace(new RegExp(`${NL}{3,}`, 'g'), NL + NL);
   }
   writeFileSync('dist/.htaccess', ht);
   for (const f of readdirSync('server')) if (f.endsWith('.php')) cpSync(join('server', f), join('dist', f));
@@ -629,4 +665,4 @@ if (!existsSync('build/images.json')) { console.error('build/images.json missing
 mkdirSync('dist', { recursive: true });
 renderHome(); renderPractice(); renderAbout(); renderTeam(); renderInsights(); renderCalculators(); renderContact(); renderLegal(); renderNotFound();
 await copyStatic();
-console.log(`built ${written} pages → dist/ (css ${assets.css}, js ${assets.js})${STAGING ? ' — STAGING: noindex' : ''}`);
+console.log(`built ${written} pages → dist/ (css ${assets.css}, js ${assets.js})${STAGING ? ' — STAGING: noindex' : ''}${BASE ? ` — BASE ${BASE}` : ''}`);
