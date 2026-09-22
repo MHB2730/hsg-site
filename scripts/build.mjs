@@ -237,7 +237,7 @@ ${pillars.map((p, i) => `<section class="section${i % 2 ? ' ruled' : ''}" id="${
     </div>
     <div class="service-cards">${byPillar(p.id).map(serviceCard).join('')}</div>
   </div>
-</section>`).join('')}
+</section>${i === 1 ? bandImage('scenes/signing', 'A site plan being handed across a desk') : ''}`).join('')}
 ${contactBand()}`;
   write('/practice/', page({ title: 'Areas of practice', description: 'HSG Attorneys’ thirteen areas of practice across property and conveyancing, land and tenure, planning and environmental law, and disputes and advisory.', path: '/practice/', body, jsonld: [breadcrumbLd([['Home', '/'], ['Practice', '/practice/']])] }));
 
@@ -475,6 +475,7 @@ function renderInsights() {
   const body = `
 ${pageHead({ crumbs: [['Home', '/'], ['Insights']], eyebrow: 'Insights', title: 'Commentary from the land-legal sector', lead: 'Posts from the firm’s LinkedIn page, and longer articles on the planning, tenure and environmental developments that affect property and development in South Africa.' })}
 ${linkedInSection()}
+${bandImage('scenes/law-reports', 'Law reports on a shelf in the firm’s library')}
 <section class="section ruled" id="articles">
   <div class="wrap">
     <div class="section-head">
