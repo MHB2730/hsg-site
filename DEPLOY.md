@@ -9,21 +9,29 @@ cPanel → **Backup** → download a full account backup (files + database). Kee
 at least a few months; it is the only way back to the old site.
 
 ## 1. Stage it on a subdomain (review copy)
+This is how the directors see it before anything touches the live site.
+
 1. cPanel → **Domains** → create subdomain `new` on `hsgattorneys.co.za`. Note the
    document-root folder it creates (e.g. `/home/USER/new.hsgattorneys.co.za`).
-2. On your PC: `npm run build && npm run check && npm run pack` → `hsg-site.zip`.
-3. cPanel → **File Manager** → open that folder → **Upload** `hsg-site.zip` → select it
-   → **Extract** → delete the zip. Confirm `.htaccess` is present (enable *Show hidden
-   files* in File Manager settings if it isn't listed).
+2. On your PC: `npm run pack:staging` → **`hsg-site-staging.zip`**. Use this one for
+   staging, not `hsg-site.zip`: every page in it is marked `noindex`, robots.txt
+   disallows everything and the server sends `X-Robots-Tag: noindex`, so the draft can
+   never be indexed or compete with the live site in Google.
+3. cPanel → **File Manager** → open that folder → **Upload** the zip → select it →
+   **Extract** → delete the zip. Confirm `.htaccess` is there (turn on *Show hidden
+   files* in File Manager settings if you can't see it).
 4. Copy `mail-config.php` from the app's folder (`app.hsgattorneys.co.za`) into this
-   folder — same SMTP credentials work — or create it from
-   `mail-config.example.php`. It is never in the zip.
-5. **Temporarily** stop search engines indexing the staging copy: add
-   `Header set X-Robots-Tag "noindex"` to the top of `.htaccess` on the staging
-   folder only (remove it before cut-over, or simply never copy that line).
-6. Open https://new.hsgattorneys.co.za and test: every menu item, the calculators
-   link, the map buttons, the video, a real contact-form submission (check the email
-   arrives and that `leads.log.jsonl` was written), and the 404 page.
+   folder so the contact form can send; or create it from `mail-config.example.php`.
+   Without it the form falls back to opening the visitor's email app.
+5. **Put a password on it** (recommended for a client-facing draft): cPanel →
+   **Directory Privacy** → tick the subdomain folder → *Password protect this
+   directory* → add one user, e.g. `hsg` with a shared password. Send the directors
+   the address plus that username and password.
+6. Test before sending: every menu item, the calculators, the LinkedIn posts, a real
+   contact-form submission, and the 404 page.
+
+Send the directors: the address, the login if you set one, and a note that it is a
+draft for comment.
 
 ## 2. Cut over (replaces WordPress)
 1. cPanel → File Manager → the main document root (`public_html`). **Rename** it to

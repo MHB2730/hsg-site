@@ -11,7 +11,8 @@
     "serve": "node scripts/serve.mjs",
     "check": "node scripts/check.mjs && node scripts/copy-lint.mjs",
     "pack": "node scripts/pack.mjs",
-    "test:calc": "node scripts/test-calc.mjs"
+    "test:calc": "node scripts/test-calc.mjs",
+    "pack:staging": "node scripts/images.mjs && node scripts/build.mjs --staging && node scripts/pack.mjs --staging"
   },
   "devDependencies": {
     "sharp": "^0.34.3"

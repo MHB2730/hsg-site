@@ -19,6 +19,7 @@ npm run serve        # preview at http://localhost:4180
 npm run check        # JS parses, links / headings / alt text, copy consistency
 npm run test:calc    # calculator figures, to check parity with the app
 npm run pack         # dist/ → hsg-site.zip for cPanel
+npm run pack:staging # same, but noindex throughout → hsg-site-staging.zip (review copies)
 ```
 
 ## Editing content

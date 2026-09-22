@@ -16,6 +16,10 @@ const calculators = J('content/calculators.json');
 const linkedin = J('content/linkedin.json');
 const redirects = J('content/redirects.json');
 
+// `--staging` builds a review copy: every page is marked noindex and the server sends
+// X-Robots-Tag too, so a draft on new.hsgattorneys.co.za can never be indexed or end up
+// competing with the live site.
+const STAGING = process.argv.includes('--staging');
 const hash = f => createHash('sha1').update(readFileSync(f)).digest('hex').slice(0, 8);
 const assets = { css: hash('src/css/site.css'), js: hash('src/js/site.js'), facets: hash('src/js/facets.js'), module: hash('src/js/calculators.js') };
 const pages = []; // [path, lastmod?] for the sitemap
@@ -28,7 +32,7 @@ function write(path, html, { lastmod, sitemap = true } = {}) {
   if (sitemap) pages.push([path, lastmod]);
   written++;
 }
-const page = (opts) => layout({ ...opts, assets });
+const page = (opts) => layout({ ...opts, assets, noindex: opts.noindex || STAGING });
 
 /* ---------- reusable fragments ---------- */
 const byPillar = id => services.filter(s => s.pillar === id);
@@ -604,11 +608,17 @@ async function copyStatic() {
   // Anchored regexes: a plain `Redirect` matches by prefix (/team-summary would also catch /team-summary-2/).
   const rx = p => p.replace(/\/$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const rules = redirects.map(([from, to]) => `RedirectMatch 301 ^${rx(from)}/?$ ${to}`).join('\n');
-  const ht = readFileSync('server/.htaccess', 'utf8').replace('# {{REDIRECTS}}', rules);
+  let ht = readFileSync('server/.htaccess', 'utf8').replace('# {{REDIRECTS}}', rules);
+  if (STAGING) {
+    const tag = ['<IfModule mod_headers.c>', '  Header always set X-Robots-Tag "noindex, nofollow"'].join('\n');
+    ht = ht.replace('<IfModule mod_headers.c>', tag, 1);
+  }
   writeFileSync('dist/.htaccess', ht);
   for (const f of readdirSync('server')) if (f.endsWith('.php')) cpSync(join('server', f), join('dist', f));
   // robots + sitemap
-  writeFileSync('dist/robots.txt', `User-agent: *\nAllow: /\nDisallow: /contact.php\nSitemap: ${site.url}/sitemap.xml\n`);
+  writeFileSync('dist/robots.txt', STAGING
+    ? ['User-agent: *', 'Disallow: /', ''].join('\n')
+    : `User-agent: *\nAllow: /\nDisallow: /contact.php\nSitemap: ${site.url}/sitemap.xml\n`);
   const today = new Date().toISOString().slice(0, 10);
   const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(([p, lm]) => `  <url><loc>${site.url}${p}</loc><lastmod>${lm || today}</lastmod></url>`).join('\n')}\n</urlset>\n`;
   writeFileSync('dist/sitemap.xml', sm);
@@ -619,4 +629,4 @@ if (!existsSync('build/images.json')) { console.error('build/images.json missing
 mkdirSync('dist', { recursive: true });
 renderHome(); renderPractice(); renderAbout(); renderTeam(); renderInsights(); renderCalculators(); renderContact(); renderLegal(); renderNotFound();
 await copyStatic();
-console.log(`built ${written} pages → dist/ (css ${assets.css}, js ${assets.js})`);
+console.log(`built ${written} pages → dist/ (css ${assets.css}, js ${assets.js})${STAGING ? ' — STAGING: noindex' : ''}`);
