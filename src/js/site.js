@@ -91,29 +91,29 @@
   });
 
   /* ---- colour lens on greyscale photography ----
-     The colour shows through the firm's mark rather than through a circle: the outline
-     of the five facets in images/src/brand/geo-emblem.svg, as fractions of its own
-     bounding box. The collapsed and fully-open shapes are the same five points in the
-     stylesheet, so one state animates into the next. */
-  const EMBLEM = [[.4637, 0], [1, .3548], [.8467, .8403], [.3669, 1], [0, .5164]];
-  const EMBLEM_AR = 1.037;                       // the mark is very slightly wider than tall
+     The colour comes through the emblem itself: images/brand/geo-emblem.svg is the first
+     of two mask layers on the colour copy (see the stylesheet), and all this does is move
+     and size that layer under the cursor. Its facets and the gaps between them are the
+     artwork's, so the reveal is the mark rather than an impression of it. */
+  const EMBLEM_AR = 92 / 100;                    // the emblem's viewBox, height over width
   $$('.lens').forEach(lens => {
     const colour = $('.lens-colour', lens);
     if (!colour) return;
-    const size = () => Math.max(200, Math.min(lens.clientWidth, lens.clientHeight) * .62);
-    const mark = (cx, cy) => {
-      const w = size(), h = w / EMBLEM_AR;
-      return 'polygon(' + EMBLEM.map(([x, y]) =>
-        `${(cx + (x - .5) * w).toFixed(1)}px ${(cy + (y - .5) * h).toFixed(1)}px`).join(', ') + ')';
+    const size = () => Math.max(240, Math.min(lens.clientWidth, lens.clientHeight) * .78);
+    const set = (position, size) => {
+      colour.style.webkitMaskPosition = colour.style.maskPosition = position;
+      colour.style.webkitMaskSize = colour.style.maskSize = size;
     };
     lens.addEventListener('pointermove', e => {
       if (e.pointerType !== 'mouse' || lens.classList.contains('is-on')) return;
-      const r = lens.getBoundingClientRect();
+      const r = lens.getBoundingClientRect(), w = size(), h = w * EMBLEM_AR;
       lens.classList.add('touched');
-      colour.style.clipPath = mark(e.clientX - r.left, e.clientY - r.top);
+      // Layer one is the mark, centred on the cursor; layer two stays out of the way.
+      set(`${(e.clientX - r.left - w / 2).toFixed(1)}px ${(e.clientY - r.top - h / 2).toFixed(1)}px, 50% 50%`,
+          `${w.toFixed(1)}px ${h.toFixed(1)}px, 0 0`);
     });
-    lens.addEventListener('pointerleave', () => { if (!lens.classList.contains('is-on')) colour.style.clipPath = ''; });
-    lens.addEventListener('click', () => { lens.classList.add('touched'); lens.classList.toggle('is-on'); colour.style.clipPath = ''; });
+    lens.addEventListener('pointerleave', () => { if (!lens.classList.contains('is-on')) set('', ''); });
+    lens.addEventListener('click', () => { lens.classList.add('touched'); lens.classList.toggle('is-on'); set('', ''); });
   });
 
   /* ---- milestones: mark passed dots ---- */
