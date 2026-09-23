@@ -117,9 +117,9 @@ overwrite hand edits in `content/`**, so do not run it unless you mean to.
   mark instead, since the cursor reveal is switched off for those visitors.
 - **Practice explorer** — `role="tablist"` tabs with hover intent and arrow-key
   navigation on wide screens; the same markup becomes an accordion below 860 px.
-- **Colour lens** — greyscale photo with a colour twin revealed under the cursor
-  through the outline of the firm's mark (`.lens`; the five points come from
-  `images/src/brand/geo-emblem.svg`); tap toggles full colour on touch screens.
+- **Colour lens** — greyscale photo with a colour twin that bleeds in under the
+  cursor through a feathered opening (`.lens`). A click, or a tap on a touch screen,
+  opens the colour out from that point across the whole frame.
 - **LinkedIn posts** — LinkedIn has no public feed API for company pages, so the posts
   are chosen by hand in `content/linkedin.json` and lead the Insights page. Each is a
   card of ours — our caption as the heading, then LinkedIn's own official embed — and an

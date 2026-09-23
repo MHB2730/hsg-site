@@ -91,29 +91,20 @@
   });
 
   /* ---- colour lens on greyscale photography ----
-     The colour comes through the emblem itself: images/brand/geo-emblem.svg is the first
-     of two mask layers on the colour copy (see the stylesheet), and all this does is move
-     and size that layer under the cursor. Its facets and the gaps between them are the
-     artwork's, so the reveal is the mark rather than an impression of it. */
-  const EMBLEM_AR = 92 / 100;                    // the emblem's viewBox, height over width
+     A feathered opening follows the cursor (the mask itself is in the stylesheet); all
+     this does is say where the cursor is and whether it is over the photograph. A click,
+     or a tap on a touch screen, opens the colour out from that point to the whole frame. */
   $$('.lens').forEach(lens => {
-    const colour = $('.lens-colour', lens);
-    if (!colour) return;
-    const size = () => Math.max(240, Math.min(lens.clientWidth, lens.clientHeight) * .78);
-    const set = (position, size) => {
-      colour.style.webkitMaskPosition = colour.style.maskPosition = position;
-      colour.style.webkitMaskSize = colour.style.maskSize = size;
+    if (!$('.lens-colour', lens)) return;
+    const aim = e => {
+      const r = lens.getBoundingClientRect();
+      lens.style.setProperty('--lens-x', `${(e.clientX - r.left).toFixed(1)}px`);
+      lens.style.setProperty('--lens-y', `${(e.clientY - r.top).toFixed(1)}px`);
     };
-    lens.addEventListener('pointermove', e => {
-      if (e.pointerType !== 'mouse' || lens.classList.contains('is-on')) return;
-      const r = lens.getBoundingClientRect(), w = size(), h = w * EMBLEM_AR;
-      lens.classList.add('touched');
-      // Layer one is the mark, centred on the cursor; layer two stays out of the way.
-      set(`${(e.clientX - r.left - w / 2).toFixed(1)}px ${(e.clientY - r.top - h / 2).toFixed(1)}px, 50% 50%`,
-          `${w.toFixed(1)}px ${h.toFixed(1)}px, 0 0`);
-    });
-    lens.addEventListener('pointerleave', () => { if (!lens.classList.contains('is-on')) set('', ''); });
-    lens.addEventListener('click', () => { lens.classList.add('touched'); lens.classList.toggle('is-on'); set('', ''); });
+    lens.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { aim(e); lens.classList.add('is-hot'); } });
+    lens.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { aim(e); lens.classList.add('touched'); } });
+    lens.addEventListener('pointerleave', () => lens.classList.remove('is-hot'));
+    lens.addEventListener('click', e => { aim(e); lens.classList.add('touched'); lens.classList.toggle('is-on'); });
   });
 
   /* ---- milestones: mark passed dots ---- */
