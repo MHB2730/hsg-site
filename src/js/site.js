@@ -90,16 +90,27 @@
     activate(0);
   });
 
-  /* ---- colour lens on greyscale photography ---- */
+  /* ---- colour lens on greyscale photography ----
+     The colour shows through the firm's mark rather than through a circle: the outline
+     of the five facets in images/src/brand/geo-emblem.svg, as fractions of its own
+     bounding box. The collapsed and fully-open shapes are the same five points in the
+     stylesheet, so one state animates into the next. */
+  const EMBLEM = [[.4637, 0], [1, .3548], [.8467, .8403], [.3669, 1], [0, .5164]];
+  const EMBLEM_AR = 1.037;                       // the mark is very slightly wider than tall
   $$('.lens').forEach(lens => {
     const colour = $('.lens-colour', lens);
     if (!colour) return;
-    const radius = () => Math.max(90, Math.min(lens.clientWidth, lens.clientHeight) * .28);
+    const size = () => Math.max(200, Math.min(lens.clientWidth, lens.clientHeight) * .62);
+    const mark = (cx, cy) => {
+      const w = size(), h = w / EMBLEM_AR;
+      return 'polygon(' + EMBLEM.map(([x, y]) =>
+        `${(cx + (x - .5) * w).toFixed(1)}px ${(cy + (y - .5) * h).toFixed(1)}px`).join(', ') + ')';
+    };
     lens.addEventListener('pointermove', e => {
       if (e.pointerType !== 'mouse' || lens.classList.contains('is-on')) return;
       const r = lens.getBoundingClientRect();
       lens.classList.add('touched');
-      colour.style.clipPath = `circle(${radius()}px at ${e.clientX - r.left}px ${e.clientY - r.top}px)`;
+      colour.style.clipPath = mark(e.clientX - r.left, e.clientY - r.top);
     });
     lens.addEventListener('pointerleave', () => { if (!lens.classList.contains('is-on')) colour.style.clipPath = ''; });
     lens.addEventListener('click', () => { lens.classList.add('touched'); lens.classList.toggle('is-on'); colour.style.clipPath = ''; });

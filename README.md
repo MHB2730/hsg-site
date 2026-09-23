@@ -118,7 +118,8 @@ overwrite hand edits in `content/`**, so do not run it unless you mean to.
 - **Practice explorer** — `role="tablist"` tabs with hover intent and arrow-key
   navigation on wide screens; the same markup becomes an accordion below 860 px.
 - **Colour lens** — greyscale photo with a colour twin revealed under the cursor
-  (`.lens`); tap toggles full colour on touch screens.
+  through the outline of the firm's mark (`.lens`; the five points come from
+  `images/src/brand/geo-emblem.svg`); tap toggles full colour on touch screens.
 - **LinkedIn posts** — LinkedIn has no public feed API for company pages, so the posts
   are chosen by hand in `content/linkedin.json` and lead the Insights page. Each is a
   card of ours — our caption as the heading, then LinkedIn's own official embed — and an
