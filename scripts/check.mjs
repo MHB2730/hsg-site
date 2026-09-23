@@ -44,6 +44,10 @@ for (const page of pages) {
   }
   for (const m of html.matchAll(/<img\b[^>]*>/g)) if (!/\balt=/.test(m[0])) bad(page, 'img without alt', m[0].slice(0, 80));
 }
+if (JSON.parse(readFileSync('content/reviews.json', 'utf8')).placeholder) {
+  console.log('note: the client reviews are sample text (content/reviews.json "placeholder": true). Fine for a draft — `npm run pack` refuses to build the live zip until it is false.');
+}
+
 const size = walk(DIST).reduce((a, f) => a + statSync(f).size, 0);
 console.log(`${pages.length} pages checked, ${problems} problem(s), dist/ = ${(size / 1048576).toFixed(1)} MB`);
 process.exit(problems ? 1 : 0);

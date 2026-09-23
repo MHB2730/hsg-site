@@ -14,6 +14,7 @@ const projects = J('content/projects.json');
 const legal = { privacy: J('content/legal/privacy.json'), terms: J('content/legal/terms.json') };
 const calculators = J('content/calculators.json');
 const linkedin = J('content/linkedin.json');
+const reviews = J('content/reviews.json');
 const redirects = J('content/redirects.json');
 
 // `--staging` builds a review copy: every page is marked noindex and the server sends
@@ -116,6 +117,58 @@ const contactCard = (title = 'Talk to us about your matter') => `<div class="con
 const statTile = s => `<div class="stat"><div class="stat-value">${s.prefix ? `<small>${esc(s.prefix)}</small>` : ''}<span data-count="${s.value}"${s.raw ? ' data-raw="1"' : ''}>${s.value}</span>${s.suffix ? `<small>${esc(s.suffix)}</small>` : ''}</div><div class="stat-label">${esc(s.label)}</div><div class="stat-note">${esc(s.note)}</div></div>`;
 
 
+/** A rating as filled and empty facets, with the figure itself for anyone not seeing them. */
+const facetRating = (score, outOf = 5) =>
+  `<span class="rating" role="img" aria-label="${attr(`${score} out of ${outOf}`)}">${
+    Array.from({ length: outOf }, (_, i) => `<i${i < Math.round(score) ? ' class="on"' : ''}></i>`).join('')
+  }</span>`;
+
+/**
+ * Client reviews. Every review is in the page; the script stacks them and shows one at a
+ * time, so without it the section is simply a list and nothing is hidden from a reader
+ * or a crawler. Sample content carries a visible label until real reviews replace it.
+ */
+function reviewsSection() {
+  const r = reviews, s = r.summary;
+  return `<section class="section ruled" id="reviews">
+  <div class="wrap">
+    <div class="section-head">
+      <div data-reveal><p class="eyebrow">${esc(r.eyebrow)}</p><h2 class="h2">${esc(r.title)}</h2></div>
+      <p class="lead" data-reveal style="--i:2">${esc(r.text)}</p>
+    </div>
+    <div class="reviews" data-reveal>
+      <div class="reviews-summary">
+        <div class="reviews-score">${esc(s.score)}<small>/ ${s.outOf}</small></div>
+        ${facetRating(Number(s.score), s.outOf)}
+        <p class="reviews-count">${esc(s.label)} across ${s.count} reviews</p>
+        <p class="fine">${esc(r.source)}</p>
+        ${r.placeholder ? `<p class="reviews-flag">${esc(r.placeholderNote)}</p>` : ''}
+      </div>
+      <div class="reviews-stage">
+        ${r.items.map((it, i) => `<figure class="review" id="review-${i}" role="tabpanel" aria-labelledby="review-tab-${i}" tabindex="0" style="--i:${i}">
+          <blockquote>${esc(it.quote)}</blockquote>
+          <figcaption>
+            <span class="review-who">${esc(it.name)}</span>
+            <span class="review-role">${esc(it.role)}, ${esc(it.organisation)}</span>
+            <span class="review-meta">${facetRating(it.rating)}<span>${esc(it.matter)}</span><span>${esc(fmtDate(it.date + '-01'))}</span></span>
+          </figcaption>
+        </figure>`).join('')}
+      </div>
+      <div class="reviews-pick" role="tablist" aria-label="Client reviews">
+        ${r.items.map((it, i) => `<button class="review-tab" type="button" role="tab" id="review-tab-${i}" aria-controls="review-${i}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">
+          <span class="review-tab-name">${esc(it.name)}</span><span class="review-tab-org">${esc(it.organisation)}</span>
+          <i class="review-tick" aria-hidden="true"></i>
+        </button>`).join('')}
+      </div>
+      <div class="reviews-hold">
+        <div class="reviews-progress" aria-hidden="true"><i></i></div>
+        <button class="reviews-toggle" type="button" hidden>Pause</button>
+      </div>
+    </div>
+  </div>
+</section>`;
+}
+
 /** A full-width photograph between sections, greyscale until the cursor passes over it. */
 const bandImage = (key, alt, hint = 'Move over the photo to see it in colour') => `<div class="wrap section-tight">
   <div class="lens lens-wide" data-reveal>
@@ -200,6 +253,8 @@ function renderHome() {
     <p class="mt-2"><a class="link" href="/team/"><span>Everyone at HSG</span>${arrow()}</a></p>
   </div>
 </section>
+
+${reviewsSection()}
 
 <section class="chrome">
   <div class="wrap tools">

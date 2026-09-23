@@ -36,6 +36,7 @@ npm run pack:review  # noindex AND built for a subfolder (hsgattorneys.co.za/rev
 | Insights | `content/articles.json` | `date` (YYYY-MM-DD), `title`, `excerpt`, `image`, `body` (HTML blocks). Newest first automatically. |
 | Privacy / Terms | `content/legal/*.json` | Update `modified` when the text changes. |
 | LinkedIn posts | `content/linkedin.json` | Hand-picked posts, at the top of Insights. Paste a post's "Embed this post" snippet, its plain link, or a bare urn into `embed` — all three carry the id. `caption` is the heading shown on the card, so make it say what the post is about. Newest first; `initialCount` sets how many show before "Show more"; an empty list removes the section. |
+| Client reviews | `content/reviews.json` | The panel on the home page. One object per review: `name`, `role`, `organisation`, `matter`, `rating` (1–5), `date` (YYYY-MM), `quote`. `summary` is the figure shown beside them. **`placeholder` must be `true` while the reviews are sample text** — that shows a "sample content" label on the page and makes `npm run pack` refuse to build the live zip. Set it to `false` once every review is a real one. |
 | Calculators | `content/calculators.json` | Page copy, the disclaimer, and the fields of each calculator. |
 | Old → new URL redirects | `content/redirects.json` | Baked into `.htaccess` at build time. |
 

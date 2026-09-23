@@ -387,6 +387,79 @@ a.person:hover .person-photo img, a.person:focus-visible .person-photo img { fil
 .profile-meta dd { margin: .15rem 0 0; }
 .profile-meta a { text-decoration-color: var(--line-2); overflow-wrap: anywhere; }
 
+/* ---------- client reviews ----------
+   One quote on the stage at a time, chosen from the list beside it. Every review is
+   in the same grid cell, so the stage is as tall as the longest of them and the list
+   never moves under the cursor when the quote changes. */
+.reviews { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) minmax(0, 17rem); gap: clamp(1.5rem, 3vw, 3rem); align-items: start; }
+
+.reviews-summary { border-top: 2px solid var(--ink); padding-top: 1.1rem; }
+.reviews-score { font-family: var(--font-display); font-size: clamp(3rem, 2.2rem + 2.4vw, 4.4rem); line-height: 1; letter-spacing: -.02em; }
+.reviews-score small { font-size: .32em; letter-spacing: .02em; color: var(--muted); margin-left: .35em; }
+.reviews-count { margin: .7rem 0 0; font-size: var(--fs-sm); font-weight: 600; }
+.reviews-summary .fine { margin: .35rem 0 0; color: var(--muted); }
+.reviews-flag { margin: 1rem 0 0; padding: .45rem .6rem; border: 1px dashed var(--line-2); font-size: var(--fs-xs); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+
+/* the rating, drawn as facets of the mark rather than stars */
+.rating { display: inline-flex; gap: .28rem; margin-top: .9rem; }
+.rating i { width: .5rem; height: .5rem; transform: rotate(45deg); border: 1px solid var(--ink-2); }
+.rating i.on { background: var(--ink); border-color: var(--ink); }
+
+.reviews-stage { min-width: 0; }
+.review { margin: 0; min-width: 0; }
+.review blockquote { margin: 0; font-family: var(--font-display); font-size: clamp(1.45rem, 1.05rem + 1.35vw, 2.15rem); line-height: 1.25; letter-spacing: -.012em; text-wrap: pretty; }
+.review blockquote::before { content: "\201C"; }
+.review blockquote::after { content: "\201D"; }
+.review figcaption { display: flex; flex-direction: column; gap: .12rem; margin-top: 1.5rem; padding-top: 1.1rem; border-top: 1px solid var(--line); }
+.review-who { font-weight: 600; }
+.review-role { font-size: var(--fs-sm); color: var(--ink-2); }
+.review-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin-top: .5rem; font-size: var(--fs-xs); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.review-meta .rating { margin: 0; }
+.review-meta .rating i { width: .4rem; height: .4rem; }
+
+.reviews-pick { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.review-tab { position: relative; display: grid; gap: .1rem; padding: .8rem 1.6rem .8rem 0; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; cursor: pointer; color: var(--muted); transition: color var(--dur) var(--ease-out); }
+.review-tab-name { font-weight: 600; font-size: var(--fs-sm); }
+.review-tab-org { font-size: var(--fs-xs); }
+.review-tick { position: absolute; right: 0; top: 50%; width: .9rem; height: 1px; background: currentColor; transform: translateY(-50%) scaleX(0); transform-origin: right; transition: transform var(--dur) var(--ease-out); }
+.review-tab:hover { color: var(--ink-2); }
+.review-tab[aria-selected="true"] { color: var(--ink); }
+.review-tab[aria-selected="true"] .review-tick { transform: translateY(-50%) scaleX(1); }
+
+/* how long the current review has left before the panel moves on, and the way to stop it */
+.reviews-hold { grid-column: 3; display: flex; align-items: center; gap: .9rem; margin-top: .9rem; }
+.reviews-progress { flex: 1; height: 1px; background: var(--line); }
+.reviews-progress i { display: block; height: 100%; background: var(--ink); transform-origin: left; transform: scaleX(0); }
+.reviews-toggle { flex: none; padding: 0; border: 0; background: none; font: inherit; font-size: var(--fs-xs); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+.reviews-toggle:hover { color: var(--ink); }
+
+/* With the script running, the reviews stack in one cell and one is shown at a time.
+   Without it they stay a plain list, so nothing is hidden from a reader or a crawler. */
+.js .reviews-stage { display: grid; }
+.js .reviews-stage .review { grid-area: 1 / 1; visibility: hidden; opacity: 0; transform: translateY(.5rem); transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out), visibility var(--dur); }
+.js .reviews-stage .review.is-on { visibility: visible; opacity: 1; transform: none; }
+.reviews-stage .review + .review { margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid var(--line); }
+.js .reviews-stage .review + .review { margin-top: 0; padding-top: 0; border-top: 0; }
+
+@media (max-width: 1100px) {
+  .reviews { grid-template-columns: minmax(0, 1fr) minmax(0, 16rem); }
+  .reviews-summary { grid-column: 1 / -1; display: grid; grid-template-columns: auto auto 1fr; align-items: baseline; gap: .4rem 1.1rem; }
+  .reviews-summary .rating { margin: 0; align-self: center; }
+  .reviews-count { margin: 0; }
+  .reviews-summary .fine, .reviews-flag { grid-column: 1 / -1; }
+  .reviews-hold { grid-column: 2; }
+}
+@media (max-width: 760px) {
+  .reviews { grid-template-columns: minmax(0, 1fr); }
+  .reviews-summary { grid-template-columns: auto auto; }
+  .reviews-pick { flex-direction: row; overflow-x: auto; scroll-snap-type: x proximity; border-top: 0; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .reviews-pick::-webkit-scrollbar { display: none; }
+  .review-tab { flex: 0 0 auto; scroll-snap-align: start; padding: .7rem 1.1rem .7rem 0; border-bottom: 0; border-top: 1px solid var(--line); }
+  .review-tick { top: 0; left: 0; right: auto; width: 100%; transform: scaleX(0); transform-origin: left; }
+  .review-tab[aria-selected="true"] .review-tick { transform: scaleX(1); }
+  .reviews-hold { grid-column: 1; }
+}
+
 /* ---------- cards (insights, projects) & tools ---------- */
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 2.5rem); }
 @media (max-width: 960px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

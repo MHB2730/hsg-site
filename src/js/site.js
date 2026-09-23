@@ -166,6 +166,66 @@
     update();
   });
 
+  /* ---- client reviews: one quote at a time, moving on by itself until touched ---- */
+  $$('.reviews').forEach(root => {
+    const tabs = $$('.review-tab', root), panels = $$('.review', root);
+    const bar = $('.reviews-progress i', root), hold = $('.reviews-toggle', root);
+    if (tabs.length < 2 || tabs.length !== panels.length) return;
+    const HOLD = 7000;
+    let at = -1, auto = !reduceMotion, timer = 0, t0 = 0, raf = 0;
+
+    const show = i => {
+      at = (i + panels.length) % panels.length;
+      tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(j === at)); t.tabIndex = j === at ? 0 : -1; });
+      panels.forEach((p, j) => p.classList.toggle('is-on', j === at));
+    };
+    const tick = now => {
+      if (!auto) return;
+      const p = Math.min(1, (now - t0) / HOLD);
+      if (bar) bar.style.transform = `scaleX(${p})`;
+      raf = p < 1 ? requestAnimationFrame(tick) : 0;
+    };
+    const arm = () => {
+      clearTimeout(timer); cancelAnimationFrame(raf);
+      if (hold) { hold.hidden = false; hold.textContent = auto ? 'Pause' : 'Play'; }
+      if (!auto) { if (bar) bar.style.transform = 'scaleX(0)'; return; }
+      t0 = performance.now(); raf = requestAnimationFrame(tick);
+      timer = setTimeout(() => { show(at + 1); arm(); }, HOLD);
+    };
+    // Any deliberate choice ends the rotation: past that point the panel only moves when
+    // the reader moves it, or starts it again.
+    const settle = i => { auto = false; arm(); show(i); };
+    // The rotation starts by itself, so there has to be a plain way to stop it that does
+    // not depend on hovering (WCAG 2.2.2). It only appears once something is rotating.
+    hold?.addEventListener('click', () => { auto = !auto; arm(); });
+
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => settle(i));
+      t.addEventListener('keydown', e => {
+        const n = tabs.length, go = k => { settle(k); tabs[k].focus(); };
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go((i + 1) % n); }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); go((i - 1 + n) % n); }
+        if (e.key === 'Home') { e.preventDefault(); go(0); }
+        if (e.key === 'End') { e.preventDefault(); go(n - 1); }
+      });
+    });
+    // Hovering or reading with the keyboard holds the current one in place.
+    const pause = () => { clearTimeout(timer); cancelAnimationFrame(raf); };
+    root.addEventListener('pointerenter', pause);
+    root.addEventListener('focusin', pause);
+    root.addEventListener('pointerleave', () => auto && arm());
+    root.addEventListener('focusout', e => { if (auto && !root.contains(e.relatedTarget)) arm(); });
+    d.addEventListener('visibilitychange', () => d.hidden ? pause() : (auto && arm()));
+
+    show(0);
+    // Nothing rotates until the panel is actually on screen.
+    new IntersectionObserver(([e], o) => {
+      if (!e.isIntersecting) return;
+      o.disconnect();
+      arm();
+    }, { threshold: .25 }).observe(root);
+  });
+
   /* ---- people filter ---- */
   const filters = $('.filters');
   if (filters) {
