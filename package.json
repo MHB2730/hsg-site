@@ -2,7 +2,7 @@
   "name": "hsg-site",
   "version": "0.1.0",
   "private": true,
-  "description": "hsgattorneys.co.za \u2014 static site generated from JSON content",
+  "description": "hsgattorneys.co.za — static site generated from JSON content",
   "type": "module",
   "scripts": {
     "build": "node scripts/images.mjs && node scripts/build.mjs",
@@ -16,6 +16,7 @@
     "pack:review": "node scripts/images.mjs && node scripts/build.mjs --staging --base=review && node scripts/pack.mjs --staging"
   },
   "devDependencies": {
+    "marked": "^18.0.14",
     "sharp": "^0.34.3"
   },
   "allowScripts": {

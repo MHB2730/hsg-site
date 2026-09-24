@@ -1,9 +1,10 @@
 # hsgattorneys.co.za — static site
 
 The firm's website, rebuilt as a static site: plain HTML/CSS/JS generated from JSON
-content by a small Node script. No CMS, no plugins, nothing to patch on the server.
+content by a small Node script. No database, no plugins, nothing to patch on the server.
 
-- **Content** lives in `content/*.json` — edit those, rebuild, upload.
+- **Content** lives in `content/` — edited through the **website admin** at `/admin`
+  (see below), or by hand; either way the site rebuilds from it.
 - **Design** is `src/css/site.css` (one file, monochrome tokens at the top) and
   `src/js/site.js` (progressive enhancement; every page works without it).
 - **Images** go in `images/src/<folder>/`; the build makes responsive WebP variants.
@@ -18,7 +19,7 @@ npm run build        # images + pages → dist/
 npm run serve        # preview at http://localhost:4180
 npm run check        # JS parses, links / headings / alt text, copy consistency
 npm run test:calc    # calculator figures, to check parity with the app
-npm run pack         # dist/ → hsg-site.zip for cPanel
+npm run pack         # dist/ → hsg-site.zip for the host
 npm run pack:staging # same, but noindex throughout → hsg-site-staging.zip (review copies)
 npm run pack:review  # noindex AND built for a subfolder (hsgattorneys.co.za/review/)
 ```
@@ -27,38 +28,71 @@ npm run pack:review  # noindex AND built for a subfolder (hsgattorneys.co.za/rev
 
 | What | File | Notes |
 |---|---|---|
-| Firm details, offices, phones, nav, stats | `content/site.json` | `linkedin` is empty until the firm's company-page URL is added. |
+| Firm details, offices, phones, nav, stats | `content/site.json` | **In the admin** (Settings › Firm details). |
 | Homepage copy | `content/home.json` | Hero, statement, section headings, contact band. |
 | Practice areas | `content/services.json` | Four `pillars`, thirteen `services`. Each service: `title`, `summary` (card text), `metaDescription`, `body` (array of HTML blocks), `icon`. |
-| People | `content/team.json` | One object per person, in display order. `section` is one of `directors`, `associates`, `management`, `professionals`. A person gets a profile page only if `bio` has at least one paragraph. `photo` points at `images/src/team/<slug>.<ext>`. |
+| People | `content/team/<slug>.json` | **In the admin.** One file per person; the file name is their page address (`/team/<slug>/`). `section` is one of `directors`, `associates`, `management`, `professionals`; within a section people are listed by `order`, lowest first. A person gets a profile page only if `bio` has at least one paragraph. `photo` is a file in `images/src/team/`. |
 | About page | `content/about.json` | History milestones, B-BBEE facts, notable appointments (also drives the homepage timeline), values. |
 | Case studies | `content/projects.json` | Shown on the About page under Projects. |
-| Insights | `content/articles.json` | `date` (YYYY-MM-DD), `title`, `excerpt`, `image`, `body` (HTML blocks). Newest first automatically. |
+| Insights | `content/articles/<slug>.json` | **In the admin.** One file per article; the file name is its address (`/insights/<slug>/`). `date` (YYYY-MM-DD), `title`, `excerpt`, `image` (in `images/src/articles/`), `body` in Markdown. Newest first automatically. |
 | Privacy / Terms | `content/legal/*.json` | Update `modified` when the text changes. |
-| LinkedIn posts | `content/linkedin.json` | Hand-picked posts, at the top of Insights. Paste a post's "Embed this post" snippet, its plain link, or a bare urn into `embed` — all three carry the id. `caption` is the heading shown on the card, so make it say what the post is about. Newest first; `initialCount` sets how many show before "Show more"; an empty list removes the section. |
-| Client reviews | `content/reviews.json` | The panel on the home page. One object per review: `name`, `role`, `organisation`, `matter`, `rating` (1–5), `date` (YYYY-MM), `quote`. `summary` is the figure shown beside them. **`placeholder` must be `true` while the reviews are sample text** — that shows a "sample content" label on the page and makes `npm run pack` refuse to build the live zip. Set it to `false` once every review is a real one. |
+| LinkedIn posts | `content/linkedin.json` | **In the admin** (Settings › LinkedIn posts). Hand-picked posts, at the top of Insights. Paste a post's "Embed this post" snippet, its plain link, or a bare urn into `embed` — all three carry the id. `caption` is the heading shown on the card, so make it say what the post is about. Newest first; `initialCount` sets how many show before "Show more"; an empty list removes the section. |
+| Client testimonials | `content/testimonials/*.json` + `content/testimonials.json` | **In the admin.** One file per testimonial, each `pending`, `published` or `declined`; only published ones with consent recorded reach the site. The settings file switches the home-page panel and the client form on and off. See *Client testimonials* below. |
 | Calculators | `content/calculators.json` | Page copy, the disclaimer, and the fields of each calculator. |
 | Old → new URL redirects | `content/redirects.json` | Baked into `.htaccess` at build time. |
 
-Body copy is an array of HTML strings so it survives JSON without a Markdown
-toolchain: `"<p>…</p>"`, `"<ul><li>…</li></ul>"`, `"<h2>…</h2>"`. Links between pages
-are root-relative (`/practice/planning-law/`).
+Article bodies are Markdown. The fixed pages' copy (services, about) is an array of HTML
+strings: `"<p>…</p>"`, `"<ul><li>…</li></ul>"`, `"<h2>…</h2>"`. Links between pages are
+root-relative (`/practice/planning-law/`).
 
-### Adding a team member
-1. Drop a square-ish photo (≥ 640 px, JPG or PNG) into `images/src/team/` named after
-   the slug, e.g. `jane-doe.jpg`.
-2. Add an entry to `content/team.json` in the position you want it shown:
-   ```json
-   { "slug": "jane-doe", "name": "Jane Doe", "section": "associates",
-     "position": "Associate Attorney", "qualifications": "LLB", "email": null,
-     "linkedin": null, "membership": null, "projects": null, "bio": [], "photo": "team/jane-doe.jpg" }
-   ```
-3. `npm run build`, then upload (see DEPLOY.md).
+If a save leaves an entry unusable — a missing name, a photo that is not there, a
+testimonial published without consent — the build stops and names the file, and nothing
+is published.
 
-### Adding an article
-Add an object to `content/articles.json` (copy an existing one), put its image in
-`images/src/articles/`, rebuild. The article gets `/insights/<slug>/`, appears on the
-Insights page and in the sitemap.
+## Website admin (`/admin`)
+
+[Sveltia CMS](https://sveltiacms.app): forms for People, Articles, Testimonials, LinkedIn
+posts and Firm details. It has no server side; every save is a commit to this repository,
+and `.github/workflows/publish.yml` then rebuilds, checks and uploads the site — two to
+three minutes. Every change is in the history, with who made it, and can be undone.
+The fields are defined in `src/admin/config.yml`; every key in every file it edits is
+listed there, so a save never drops a value the site depends on.
+
+**Setting it up (once):**
+1. The repository has to be on GitHub, private: `MHB2730/hsg-site` (the name is in
+   `src/admin/config.yml`).
+2. **Signing in:** GitHub › Settings › Developer settings › Fine-grained tokens › *Generate*.
+   Repository access: *only* `hsg-site`. Permissions: *Contents: Read and write*. Then
+   `/admin` › **Sign In Using Access Token** and paste it. The browser keeps you signed in.
+3. **Publishing:** in the repository, Settings › Secrets and variables › Actions:
+   secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` (an FTP user made for this on the
+   hosting package, not a control-panel login); variables `DEPLOY_DIR` (the folder on the
+   server, ending in `/`) and `SITE_MODE` (`staging` until go-live, then `live`).
+   Until `DEPLOY_DIR` is set, saves still build and check but upload nothing.
+4. **Testimonials into the admin:** a second fine-grained token, same repository, same
+   single permission, in `mail-config.php` on the server (`'github' => [...]`, see
+   `server/mail-config.example.php`). A separate token, so it can be revoked on its own.
+
+**Without GitHub:** open `http://localhost:4180/admin/` (after `npm run build` and
+`npm run serve`) in Chrome or Edge and choose **Work with Local Repository**, then this
+folder. It edits the files here directly; build and upload by hand as before.
+
+## Client testimonials
+
+- Clients write one at `/testimonials/#share` (linked from the home-page panel and the
+  Contact page). They choose how they are named — in full, by initials, or not at all —
+  and must tick consent. Their email is never published.
+- `testimonial.php` keeps the full submission in `testimonials.log.jsonl` (denied over
+  HTTP), adds the publishable part to the admin as **Pending**, and emails the firm with
+  the client's address. Nothing is public at this point.
+- In the admin, **Testimonials › Waiting for review**: confirm it with the client, set it
+  to **Published**, save. It is on the site a few minutes later.
+- **Settings › Testimonials** switches the home-page panel and the client form on and off
+  independently, and sets the wording. The average rating is worked out from what is
+  published, and only shown once there are enough.
+- The six sample testimonials (`"sample": true`) show on staging builds only, labelled,
+  and never on the live site — `npm run check` fails a live build that contains them.
+  Delete them once real ones are in.
 
 ## Calculators
 

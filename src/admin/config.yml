@@ -1,0 +1,304 @@
+# HSG Attorneys — website admin (Sveltia CMS)
+#
+# Every save here is a commit to the site's GitHub repository. The site then rebuilds,
+# checks itself and uploads — about two to three minutes (.github/workflows/deploy.yml).
+# If a save would break a page, the build stops and names the file, and the live site is
+# left as it was.
+#
+# Sign in with "Sign In with Token": a GitHub fine-grained personal access token limited
+# to this one repository, with Contents: Read and write. (README › Website admin.)
+#
+# Every field in every file is listed here on purpose. Nothing is left for the CMS to
+# guess about, so a save can never quietly drop a value the site depends on.
+
+backend:
+  name: github
+  repo: MHB2730/hsg-site
+  branch: main
+  commit_messages:
+    create: "Add {{collection}}: {{slug}}"
+    update: "Update {{collection}}: {{slug}}"
+    delete: "Remove {{collection}}: {{slug}}"
+    uploadMedia: "Upload {{path}}"
+    deleteMedia: "Delete {{path}}"
+
+site_url: https://hsgattorneys.co.za
+display_url: https://hsgattorneys.co.za
+
+# Pictures added outside a collection's own folder land here.
+media_folder: images/src/uploads
+public_folder: /uploads
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+
+  # ------------------------------------------------------------------ testimonials
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    description: >-
+      Testimonials sent in through the website arrive here as Pending. Read each one,
+      confirm it with the client by replying to the notification email, then set it to
+      Published. Nothing appears on the website until then. To add one that came in by
+      email or letter, use New Testimonial and tick the consent box only if the client
+      has agreed to be published.
+    folder: content/testimonials
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{year}}-{{month}}-{{day}}-{{name}}"
+    identifier_field: name
+    summary: "{{status}} · {{name}} · {{matter}}"
+    sortable_fields: [status, date, name]
+    view_filters:
+      - label: Waiting for review
+        field: status
+        pattern: pending
+      - label: Published
+        field: status
+        pattern: published
+      - label: Declined
+        field: status
+        pattern: declined
+    fields:
+      - label: Status
+        name: status
+        widget: select
+        default: pending
+        options:
+          - { label: "Pending — waiting for review", value: pending }
+          - { label: "Published — on the website", value: published }
+          - { label: "Declined — never shown", value: declined }
+      - { label: "Client's name", name: name, widget: string }
+      - label: How the name is shown
+        name: display
+        widget: select
+        default: full
+        options:
+          - { label: In full, value: full }
+          - { label: Initials only, value: initials }
+          - { label: "Not at all — shown as “Private client”", value: anonymous }
+      - { label: Role, name: role, widget: string, required: false }
+      - { label: Organisation, name: organisation, widget: string, required: false }
+      - { label: Area of practice, name: matter, widget: string, required: false }
+      - { label: "Rating (1 to 5)", name: rating, widget: number, value_type: int, min: 1, max: 5, required: false }
+      - label: Month
+        name: date
+        widget: string
+        hint: "YYYY-MM, e.g. 2026-09. Shown as the month and year."
+        pattern: ['^\d{4}-\d{2}$', "Use the form YYYY-MM, for example 2026-09"]
+      - { label: Testimonial, name: quote, widget: text }
+      - label: The client agreed to publication
+        name: consent
+        widget: boolean
+        default: false
+        hint: "Required before it can be published. Website submissions arrive with this ticked, because the form asks for it."
+      - label: Where it came from
+        name: source
+        widget: select
+        default: website
+        required: false
+        options:
+          - { label: Website form, value: website }
+          - { label: Email, value: email }
+          - { label: Letter, value: letter }
+          - { label: Google review, value: google }
+          - { label: "Sample (for the design only)", value: sample }
+      - { label: Received, name: submitted, widget: string, required: false, hint: "Filled in automatically for website submissions." }
+      - label: Sample — staging copy only
+        name: sample
+        widget: boolean
+        default: false
+        required: false
+        hint: "Samples appear on the staging copy, labelled, and never on the live site. Delete them once real testimonials are in."
+
+  # ------------------------------------------------------------------ people
+  - name: people
+    label: People
+    label_singular: Person
+    description: >-
+      Everyone on the People page. Within each section they are listed by Order, lowest
+      first. A person has their own profile page only if they have a biography.
+    folder: content/team
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{name}}"
+    identifier_field: name
+    summary: "{{name}} — {{position}}"
+    sortable_fields: [order, name, section]
+    view_groups:
+      - label: Section
+        field: section
+    media_folder: /images/src/team
+    public_folder: team
+    fields:
+      - { label: Name, name: name, widget: string }
+      - label: Section
+        name: section
+        widget: select
+        options:
+          - { label: Directors, value: directors }
+          - { label: Associates, value: associates }
+          - { label: Management, value: management }
+          - { label: Professionals, value: professionals }
+      - { label: Position, name: position, widget: string, hint: "e.g. Director, Associate, Candidate Attorney" }
+      - label: Order
+        name: order
+        widget: number
+        value_type: int
+        hint: "Lower numbers come first within the section. The current list steps in tens (10, 20, 30…) so a new person can be slotted in between."
+      - { label: Photo, name: photo, widget: image, required: false, hint: "A headshot at least 700 px wide. It is cropped square automatically, centred on the face." }
+      - { label: Qualifications, name: qualifications, widget: string, required: false }
+      - { label: Email, name: email, widget: string, required: false }
+      - { label: LinkedIn profile, name: linkedin, widget: string, required: false, hint: "The full address, starting https://www.linkedin.com/in/" }
+      - { label: Memberships, name: membership, widget: text, required: false }
+      - { label: Current projects, name: projects, widget: text, required: false }
+      - label: Biography
+        name: bio
+        widget: list
+        required: false
+        hint: "One paragraph per item."
+        field: { label: Paragraph, name: paragraph, widget: text }
+
+  # ------------------------------------------------------------------ articles
+  - name: articles
+    label: Articles
+    label_singular: Article
+    description: The longer articles on the Insights page, newest first.
+    folder: content/articles
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{title}}"
+    identifier_field: title
+    summary: "{{date}} — {{title}}"
+    sortable_fields: [date, title]
+    media_folder: /images/src/articles
+    public_folder: articles
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "D MMMM YYYY", time_format: false, picker_utc: true }
+      - { label: Summary, name: excerpt, widget: text, hint: "One or two sentences. Shown on the article's card and used as its description in Google." }
+      - { label: Picture, name: image, widget: image, required: false }
+      - { label: What the picture shows, name: imageAlt, widget: string, required: false, hint: "Read aloud to people who cannot see the picture." }
+      - { label: Article, name: body, widget: markdown }
+      - label: More pictures
+        name: gallery
+        widget: list
+        required: false
+        field: { label: Picture, name: picture, widget: image }
+      - { label: Address on the old website, name: oldUrl, widget: string, required: false, hint: "Only for articles carried over from the old site. Leave it as it is." }
+
+  # ------------------------------------------------------------------ single pages of settings
+  - name: settings
+    label: Settings
+    files:
+
+      - name: linkedin
+        label: LinkedIn posts
+        file: content/linkedin.json
+        description: >-
+          The posts at the top of the Insights page, newest first. To add one: open it on
+          LinkedIn, choose “Embed this post” from its ⋯ menu, and paste the whole snippet
+          (or just the post's link) into a new item.
+        fields:
+          - { label: Heading, name: title, widget: string }
+          - { label: Introduction, name: intro, widget: text }
+          - label: Posts
+            name: posts
+            widget: list
+            summary: "{{fields.caption}}"
+            fields:
+              - { label: "Post — the embed snippet or the post's link", name: embed, widget: text }
+              - { label: "Caption — what the post is about", name: caption, widget: string }
+              - { label: Date, name: date, widget: string, required: false, hint: "YYYY-MM-DD" }
+          - { label: Posts shown before “Show more”, name: initialCount, widget: number, value_type: int, min: 1 }
+          - { label: “Show more” button, name: moreLabel, widget: string }
+          - { label: “Follow” button, name: followLabel, widget: string }
+          - { label: Privacy note, name: privacyNote, widget: text }
+
+      - name: testimonial-settings
+        label: Testimonials — on or off, and wording
+        file: content/testimonials.json
+        fields:
+          - { label: Show testimonials on the website, name: enabled, widget: boolean, hint: "Off hides the home-page panel and the list; the invitation below has its own switch." }
+          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Heading, name: title, widget: string }
+          - { label: Introduction, name: text, widget: text }
+          - { label: Show the average rating, name: showSummary, widget: boolean }
+          - { label: Testimonials needed before the average is shown, name: minForSummary, widget: number, value_type: int, min: 1 }
+          - { label: Testimonials on the home page, name: homeCount, widget: number, value_type: int, min: 1, max: 12, default: 6, required: false }
+          - label: Invitation to clients
+            name: invite
+            widget: object
+            fields:
+              - { label: Accept testimonials through the website, name: enabled, widget: boolean }
+              - { label: Heading, name: title, widget: string }
+              - { label: Text, name: text, widget: text }
+
+      - name: firm
+        label: Firm details
+        file: content/site.json
+        description: Names, contact details and offices used across the whole site.
+        fields:
+          - { label: Name, name: name, widget: string }
+          - { label: Registered name, name: legalName, widget: string }
+          - { label: Group, name: group, widget: string }
+          - { label: Website address, name: url, widget: string }
+          - { label: Tagline, name: tagline, widget: string }
+          - { label: Description, name: description, widget: text, hint: "Used by Google and when the site is shared." }
+          - { label: Year founded, name: founded, widget: number, value_type: int }
+          - { label: Email, name: email, widget: string }
+          - { label: WhatsApp number, name: whatsapp, widget: string }
+          - { label: LinkedIn page, name: linkedin, widget: string }
+          - label: Firm video
+            name: video
+            widget: object
+            fields:
+              - { label: YouTube video id, name: youtubeId, widget: string, hint: "The part after watch?v= in the video's address." }
+              - { label: Title, name: title, widget: string }
+          - { label: Calculators app address, name: calculatorsUrl, widget: string }
+          - label: Offices
+            name: offices
+            widget: list
+            summary: "{{fields.city}}"
+            fields:
+              - { label: Id, name: id, widget: string, hint: "Lower case, no spaces. Leave as it is." }
+              - { label: City, name: city, widget: string }
+              - { label: Region, name: region, widget: string }
+              - { label: Phone numbers, name: phones, widget: list, field: { label: Number, name: number, widget: string } }
+              - { label: Street address, name: address, widget: list, field: { label: Line, name: line, widget: string } }
+              - { label: Postal address, name: postal, widget: list, field: { label: Line, name: line, widget: string } }
+              - { label: Map search, name: mapQuery, widget: string, hint: "What Google Maps should search for." }
+          - label: Figures on the home page
+            name: stats
+            widget: list
+            summary: "{{fields.value}} {{fields.label}}"
+            fields:
+              - { label: Figure, name: value, widget: number, value_type: int }
+              - { label: Before the figure, name: prefix, widget: string, required: false, hint: "e.g. Level" }
+              - { label: After the figure, name: suffix, widget: string, required: false, hint: "e.g. +" }
+              - { label: Label, name: label, widget: string }
+              - { label: Note, name: note, widget: string }
+              - { label: Show as a year, name: raw, widget: boolean, required: false, hint: "Tick for years, so 1990 is not shown as 1 990." }
+          - label: Menu
+            name: nav
+            widget: list
+            summary: "{{fields.label}}"
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Link, name: href, widget: string }
+          - label: Main button
+            name: cta
+            widget: object
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Link, name: href, widget: string }

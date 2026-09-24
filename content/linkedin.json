@@ -3,7 +3,6 @@
   "intro": "Selected posts from the firm's LinkedIn page.",
   "privacyNote": "The posts are loaded from LinkedIn, which may set cookies in your browser.",
   "followLabel": "Follow HSG on LinkedIn",
-  "_howTo": "To add a post: open it on LinkedIn, choose 'Embed this post' from its ⋯ menu, and paste the whole <iframe …> snippet as `embed` below. A plain post link or a bare urn (urn:li:share:… / urn:li:activity:… / urn:li:ugcPost:…) works just as well — put whichever you have in `embed`. `caption` is the line shown before the post loads, so it should say what the post is about; `date` is YYYY-MM-DD and may be left empty. Newest first. An empty list removes the section.",
   "posts": [
     {
       "embed": "<iframe src=\"https://www.linkedin.com/embed/feed/update/urn:li:share:7508047056624574464?collapsed=1\" height=\"669\" width=\"504\" frameborder=\"0\" allowfullscreen=\"\" title=\"Embedded post\"></iframe>",

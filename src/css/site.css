@@ -473,6 +473,21 @@ a.person:hover .person-photo img, a.person:focus-visible .person-photo img { fil
   .reviews-hold { grid-column: 1; }
 }
 
+.reviews-links { display: grid; justify-items: start; gap: .45rem; margin: 1.1rem 0 0; font-size: var(--fs-sm); }
+.reviews-links:empty { display: none; }
+
+/* the testimonials page: every published testimonial, two to a row */
+.testimonial-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(2.25rem, 4vw, 3.5rem) var(--gutter); }
+.testimonial-list .review blockquote { font-size: clamp(1.2rem, 1rem + .7vw, 1.55rem); }
+@media (max-width: 760px) { .testimonial-list { grid-template-columns: minmax(0, 1fr); } }
+
+/* radio choices in a form (how to be named, the rating) */
+fieldset.field { margin: 0; padding: 0; border: 0; }
+.field.choice { display: block; }
+.field.choice legend { padding: 0; margin-bottom: .55rem; font-size: var(--fs-xs); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.field.choice label { display: inline-flex; align-items: center; gap: .5rem; margin: 0 1.4rem .35rem 0; font-size: var(--fs-sm); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink-2); cursor: pointer; }
+.field.choice input[type="radio"] { width: 1rem; height: 1rem; margin: 0; padding: 0; accent-color: var(--ink); box-shadow: none; }
+
 /* ---------- cards (insights, projects) & tools ---------- */
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 2.5rem); }
 @media (max-width: 960px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

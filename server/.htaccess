@@ -70,6 +70,13 @@ RedirectMatch 301 ^/team/?$ /team/
 <FilesMatch "^(mail-config|hsg-mail)\.php$">
   Require all denied
 </FilesMatch>
-<FilesMatch "^(leads|honeypot)\.log\.jsonl$">
+<FilesMatch "^(leads|honeypot|testimonials)\.log\.jsonl$">
   Require all denied
 </FilesMatch>
+# ...except the rates file the calculators read, which the rule above would otherwise
+# block too — leaving the calculators silently on the rates built into tariffs.js, so a
+# rate changed in tariffs.json on the host would never take effect. (After the deny rule
+# on purpose: the later section wins.)
+<Files "tariffs.json">
+  Require all granted
+</Files>

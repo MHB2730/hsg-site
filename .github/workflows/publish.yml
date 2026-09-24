@@ -1,0 +1,70 @@
+# Build and publish — rebuilds the site and uploads it to the host whenever main changes.
+#
+# Changes arrive from the website admin (/admin), which commits here, or from a push.
+# The build runs the same checks as `npm run check`; if anything fails, nothing is
+# uploaded and the site stays exactly as it was. A testimonial sent in through the
+# website is committed with [skip ci] — it is pending, so there is nothing to publish.
+#
+# Set up once, in the repository's Settings › Secrets and variables › Actions:
+#   Secrets    FTP_SERVER     the FTP host name for the hosting package
+#              FTP_USERNAME   an FTP user created for this (not your control-panel login)
+#              FTP_PASSWORD
+#   Variables  DEPLOY_DIR     the folder on the server, ending in /  (e.g. public_html/)
+#                             — publishing is skipped until this is set
+#              SITE_MODE      staging (default: noindex, sample testimonials shown with a
+#                             label) or live (indexed; samples left out)
+#              FTP_PROTOCOL   ftps (default) or ftp, if the host has no TLS for FTP
+#
+# The upload only replaces what changed, and never touches files it did not put there
+# (mail-config.php, the logs). Third-party steps are pinned to exact commits, because the
+# upload step is handed the FTP password.
+name: Build and publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Build
+        env:
+          SITE_MODE: ${{ vars.SITE_MODE }}
+        run: |
+          node scripts/images.mjs
+          if [ "$SITE_MODE" = "live" ]; then
+            node scripts/build.mjs
+          else
+            node scripts/build.mjs --staging
+          fi
+
+      - name: Check
+        run: npm run check
+
+      - name: Upload to the host
+        if: ${{ vars.DEPLOY_DIR != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@3a9c65ae0fc12ac924ccef8afc26941cc43aad0b # v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          local-dir: ./dist/
+          server-dir: ${{ vars.DEPLOY_DIR }}

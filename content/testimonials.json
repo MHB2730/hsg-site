@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "eyebrow": "Client testimonials",
+  "title": "What clients say about working with us",
+  "text": "From developers, municipalities, body corporates and private clients across the firm’s areas of practice, published with their consent.",
+  "showSummary": true,
+  "minForSummary": 3,
+  "invite": {
+    "enabled": true,
+    "title": "Share your experience",
+    "text": "If we have acted for you, we would value a few lines about what it was like. Nothing is published until we have read it, and only with your permission."
+  }
+}

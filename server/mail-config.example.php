@@ -34,6 +34,22 @@ return [
     // Optional: a different mailbox for website (non-calculator) enquiries.
     // 'contact_to' => 'legal@hsginc.co.za',
 
+    // Optional: where "testimonial for review" notifications go (testimonial.php).
+    // Falls back to 'to'.
+    // 'testimonials_to' => 'you@hsginc.co.za',
+
+    // Testimonials sent in through the website are added to the admin's review queue
+    // (content/testimonials/ in the site's GitHub repository, marked Pending). The token
+    // is a GitHub FINE-GRAINED personal access token limited to that ONE repository,
+    // with Contents: Read and write and nothing else. Without this block the
+    // testimonial is still kept (testimonials.log.jsonl) and emailed, and the email
+    // says it must be added to the admin by hand.
+    // 'github' => [
+    //     'token'  => 'github_pat_PUT-THE-REAL-TOKEN-HERE',
+    //     'repo'   => 'MHB2730/hsg-site',
+    //     'branch' => 'main',
+    // ],
+
     'smtp' => [
         'host'     => 'smtp.app.hsgattorneys.co.za',
         'port'     => 465,                 // implicit TLS (ssl://)

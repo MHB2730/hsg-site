@@ -9,6 +9,16 @@
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { join, basename, extname } from 'node:path';
 
+// Retired. This produced the site's first content, as single files (content/team.json,
+// content/articles.json). People and articles now live one file per entry in
+// content/team/ and content/articles/, edited through the admin, and the build no longer
+// reads the single files — so running this would only write files nothing uses, next to
+// the real ones. Kept for the record of how the WordPress content was carried over.
+if (!process.argv.includes('--i-know-this-is-retired')) {
+  console.error('import-wordpress.mjs is retired: content is now edited in the admin (/admin). See the note at the top of the file.');
+  process.exit(1);
+}
+
 const harvest = process.argv[2];
 if (!harvest) { console.error('usage: node scripts/import-wordpress.mjs <harvest-dir>'); process.exit(1); }
 const J = n => JSON.parse(readFileSync(join(harvest, n), 'utf8'));

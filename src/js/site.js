@@ -172,6 +172,8 @@
   $$('.reviews').forEach(root => {
     const tabs = $$('.review-tab', root), panels = $$('.review', root);
     const bar = $('.reviews-progress i', root), hold = $('.reviews-toggle', root);
+    // A single testimonial has nothing to rotate; it only needs showing.
+    if (panels.length === 1) { panels[0].classList.add('is-on'); return; }
     if (tabs.length < 2 || tabs.length !== panels.length) return;
     const HOLD = 7000;
     let at = -1, auto = !reduceMotion, timer = 0, t0 = 0, raf = 0;
@@ -288,6 +290,49 @@
       const tail = ['', '', 'Please confirm these figures for my transaction.'].join('\n');
       if (msg && !msg.value.trim()) msg.value = carried.slice(0, 500) + tail;
     }
+  }
+
+  /* ---- testimonial form: sent to testimonial.php, which holds it for review ---- */
+  const tform = $('#testimonial-form');
+  if (tform) {
+    const status = $('.form-status', tform), btn = $('button[type=submit]', tform);
+    const show = (msg, ok) => { status.textContent = msg; status.className = 'form-status show' + (ok ? ' ok' : ''); };
+    const THANKS = 'Thank you. We will read it and confirm with you by email before anything is published.';
+    const validate = () => {
+      let ok = true;
+      $$('.field', tform).forEach(f => {
+        const input = $('input:not([type=radio]), textarea', f);
+        if (!input) return;
+        const v = input.value.trim();
+        const bad = (input.required && !v)
+          || (input.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))
+          || (input.minLength > 0 && v && v.length < input.minLength);
+        f.classList.toggle('invalid', !!bad);
+        if (bad) ok = false;
+      });
+      return ok;
+    };
+    tform.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!validate()) { show('Please complete the highlighted fields.', false); return; }
+      const consent = $('#t_consent', tform);
+      if (!consent.checked) { consent.focus(); show('Please tick the box to agree to your testimonial being published.', false); return; }
+      const data = Object.fromEntries(new FormData(tform).entries());
+      data.consent = true;
+      data.rating = Number(data.rating) || null;
+      btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Sending…';
+      try {
+        const r = await fetch(tform.action, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(data) });
+        const j = await r.json().catch(() => ({}));
+        if (r.ok && j.success) { tform.reset(); show(THANKS, true); }
+        else if (r.status === 429) show('Thank you — we have already received a testimonial from you recently. Please try again later.', false);
+        else throw new Error(j.error || 'send failed');
+      } catch (err) {
+        show('We could not send it just now. Please try again in a few minutes, or email it to us.', false);
+      } finally { btn.disabled = false; btn.textContent = btn.dataset.label; }
+    });
+    $$('input, textarea', tform).forEach(i => i.addEventListener('input', () => i.closest('.field')?.classList.remove('invalid')));
+    if (new URLSearchParams(location.search).get('sent') === '1') show(THANKS, true);
   }
 
   /* ---- video & map facades (third parties load only on request) ---- */

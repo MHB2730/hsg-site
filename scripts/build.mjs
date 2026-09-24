@@ -4,23 +4,70 @@ import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, readdirSync
 import { createHash } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import sharp from 'sharp';
+import { marked } from 'marked';
 import { site, esc, attr, img, icon, hasImage, arrow, arrowLeft, playIcon, words, layout, breadcrumbs, breadcrumbLd, telHref, waHref, mapHref, fmtDate } from './lib/html.mjs';
-
-const J = f => JSON.parse(readFileSync(f, 'utf8'));
-const home = J('content/home.json'), about = J('content/about.json'), team = J('content/team.json');
-const { pillars, services } = J('content/services.json');
-const articles = J('content/articles.json').sort((a, b) => b.date.localeCompare(a.date));
-const projects = J('content/projects.json');
-const legal = { privacy: J('content/legal/privacy.json'), terms: J('content/legal/terms.json') };
-const calculators = J('content/calculators.json');
-const linkedin = J('content/linkedin.json');
-const reviews = J('content/reviews.json');
-const redirects = J('content/redirects.json');
 
 // `--staging` builds a review copy: every page is marked noindex and the server sends
 // X-Robots-Tag too, so a draft on new.hsgattorneys.co.za can never be indexed or end up
 // competing with the live site.
 const STAGING = process.argv.includes('--staging');
+
+const J = f => JSON.parse(readFileSync(f, 'utf8'));
+// People, articles and testimonials are one file per entry, which is how the admin
+// (/admin, Sveltia CMS) adds and removes them. The file name is the entry's slug.
+const folder = dir => readdirSync(dir).filter(f => f.endsWith('.json')).sort()
+  .map(f => ({ ...J(join(dir, f)), file: `${dir}/${f}`, slug: f.replace(/\.json$/, '') }));
+// The admin writes an image as the folder it lives in plus its file name; keep only
+// the part the image pipeline knows it by (e.g. team/matthew-bremner.png).
+const imageKey = (v, dir) => v ? `${dir}/${String(v).split('/').pop()}` : '';
+
+const home = J('content/home.json'), about = J('content/about.json');
+const team = folder('content/team')
+  .map(p => ({ ...p, bio: (p.bio || []).filter(Boolean), photo: imageKey(p.photo, 'team') }))
+  .sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9) || a.name.localeCompare(b.name));
+const { pillars, services } = J('content/services.json');
+const articles = folder('content/articles')
+  .map(a => ({ ...a, date: String(a.date || '').slice(0, 10), image: imageKey(a.image, 'articles'),
+    gallery: (a.gallery || []).map(g => imageKey(g, 'articles')), html: marked.parse(a.body || '') }))
+  .sort((a, b) => b.date.localeCompare(a.date));
+const projects = J('content/projects.json');
+const legal = { privacy: J('content/legal/privacy.json'), terms: J('content/legal/terms.json') };
+const calculators = J('content/calculators.json');
+const linkedin = J('content/linkedin.json');
+const testimonialSettings = J('content/testimonials.json');
+// Only published testimonials reach a page. Sample ones — written to show the design —
+// appear on a staging build, labelled, and never on the live site.
+// An empty rating from the admin arrives as "", which is "no rating", not a bad one.
+const testimonialFiles = folder('content/testimonials')
+  .map(t => ({ ...t, rating: t.rating === '' || t.rating == null ? null : Number(t.rating) }));
+const testimonials = testimonialFiles
+  .filter(t => t.status === 'published' && (!t.sample || STAGING))
+  .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || a.slug.localeCompare(b.slug));
+const redirects = J('content/redirects.json');
+
+// A save in the admin that leaves an entry unusable stops the build here, with the file
+// named, rather than producing a broken page (the deploy only runs after a clean build).
+{
+  const problems = [];
+  const SECTIONS = ['directors', 'associates', 'management', 'professionals'];
+  for (const p of team) {
+    if (!p.name) problems.push(`${p.file}: the name is missing`);
+    if (!SECTIONS.includes(p.section)) problems.push(`${p.file}: "section" must be one of ${SECTIONS.join(', ')}`);
+    if (p.photo && !existsSync(`images/src/${p.photo}`)) problems.push(`${p.file}: the photo ${p.photo} is not in images/src/team`);
+  }
+  for (const a of articles) {
+    if (!a.title) problems.push(`${a.file}: the title is missing`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(a.date)) problems.push(`${a.file}: the date must be a date (YYYY-MM-DD)`);
+    if (a.image && !existsSync(`images/src/${a.image}`)) problems.push(`${a.file}: the image ${a.image} is not in images/src/articles`);
+  }
+  for (const t of testimonialFiles) {
+    if (!['pending', 'published', 'declined'].includes(t.status)) problems.push(`${t.file}: "status" must be pending, published or declined`);
+    if (t.status === 'published' && !String(t.quote || '').trim()) problems.push(`${t.file}: a published testimonial needs its text`);
+    if (t.status === 'published' && !t.consent) problems.push(`${t.file}: published without the client's consent recorded`);
+    if (t.rating != null && !(t.rating >= 1 && t.rating <= 5)) problems.push(`${t.file}: the rating must be between 1 and 5`);
+  }
+  if (problems.length) { console.error('Content problems — nothing was built:\n  ' + problems.join('\n  ')); process.exit(1); }
+}
 const hash = f => createHash('sha1').update(readFileSync(f)).digest('hex').slice(0, 8);
 const assets = { css: hash('src/css/site.css'), js: hash('src/js/site.js'), facets: hash('src/js/facets.js'), module: hash('src/js/calculators.js') };
 const pages = []; // [path, lastmod?] for the sitemap
@@ -114,7 +161,8 @@ const contactCard = (title = 'Talk to us about your matter') => `<div class="con
   <div class="lines">${site.offices.map(o => `<span>${esc(o.city)} <a href="${telHref(o.phones[0])}">${esc(o.phones[0])}</a></span>`).join('')}<a href="mailto:${site.email}">${site.email}</a></div>
 </div>`;
 
-const statTile = s => `<div class="stat"><div class="stat-value">${s.prefix ? `<small>${esc(s.prefix)}</small>` : ''}<span data-count="${s.value}"${s.raw ? ' data-raw="1"' : ''}>${s.value}</span>${s.suffix ? `<small>${esc(s.suffix)}</small>` : ''}</div><div class="stat-label">${esc(s.label)}</div><div class="stat-note">${esc(s.note)}</div></div>`;
+// The admin may trim the space after a prefix ("Level "), so the space is added here.
+const statTile = s => `<div class="stat"><div class="stat-value">${s.prefix?.trim() ? `<small>${esc(s.prefix.trim())} </small>` : ''}<span data-count="${s.value}"${s.raw ? ' data-raw="1"' : ''}>${s.value}</span>${s.suffix ? `<small>${esc(s.suffix)}</small>` : ''}</div><div class="stat-label">${esc(s.label)}</div><div class="stat-note">${esc(s.note)}</div></div>`;
 
 
 /** A rating as filled and empty facets, with the figure itself for anyone not seeing them. */
@@ -123,47 +171,69 @@ const facetRating = (score, outOf = 5) =>
     Array.from({ length: outOf }, (_, i) => `<i${i < Math.round(score) ? ' class="on"' : ''}></i>`).join('')
   }</span>`;
 
+/* ---------- client testimonials ---------- */
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+// Submissions are dated to the month; a day would imply more precision than there is.
+const monthYear = d => { const [y, m] = String(d || '').split('-'); return y ? (m ? `${MONTHS[Number(m) - 1]} ${y}` : y) : ''; };
+// A client chooses how to be named when they submit: in full, by initials, or not at all.
+const shownName = t => t.display === 'initials'
+  ? String(t.name || '').split(/\s+/).filter(Boolean).map(w => w[0].toUpperCase() + '.').join(' ')
+  : t.display === 'anonymous' ? 'Private client' : t.name;
+const shownRole = t => t.display === 'anonymous' ? '' : [t.role, t.organisation].filter(Boolean).join(', ');
+// The figure beside the panel is worked out from the published testimonials themselves.
+const ratingSummary = list => {
+  const rated = list.filter(t => t.rating >= 1 && t.rating <= 5);
+  return rated.length ? { score: (rated.reduce((s, t) => s + t.rating, 0) / rated.length).toFixed(1), count: rated.length } : null;
+};
+const testimonialFigure = (t, attrs = '') => `<figure class="review"${attrs}>
+  <blockquote>${esc(t.quote)}</blockquote>
+  <figcaption>
+    <span class="review-who">${esc(shownName(t))}</span>
+    ${shownRole(t) ? `<span class="review-role">${esc(shownRole(t))}</span>` : ''}
+    <span class="review-meta">${t.rating ? facetRating(t.rating) : ''}${t.matter ? `<span>${esc(t.matter)}</span>` : ''}${t.date ? `<span>${esc(monthYear(t.date))}</span>` : ''}</span>
+  </figcaption>
+</figure>`;
+const sampleFlag = list => list.some(t => t.sample) ? '<p class="reviews-flag">Sample content — not real client testimonials</p>' : '';
+
 /**
- * Client reviews. Every review is in the page; the script stacks them and shows one at a
- * time, so without it the section is simply a list and nothing is hidden from a reader
- * or a crawler. Sample content carries a visible label until real reviews replace it.
+ * The home-page panel. Switched on and off in the admin (Testimonials › Settings), and
+ * absent when there is nothing published to show. Every testimonial it holds is in the
+ * page; the script stacks them and shows one at a time, so without it the section is
+ * simply a list and nothing is hidden from a reader or a crawler.
  */
-function reviewsSection() {
-  const r = reviews, s = r.summary;
-  return `<section class="section ruled" id="reviews">
+function testimonialsSection() {
+  const s = testimonialSettings, inv = s.invite || {};
+  if (!s.enabled || !testimonials.length) return '';
+  const shown = testimonials.slice(0, Number(s.homeCount) || 6);
+  const sum = s.showSummary ? ratingSummary(testimonials) : null;
+  const summaryOk = sum && sum.count >= (Number(s.minForSummary) || 1);
+  return `<section class="section ruled" id="testimonials">
   <div class="wrap">
     <div class="section-head">
-      <div data-reveal><p class="eyebrow">${esc(r.eyebrow)}</p><h2 class="h2">${esc(r.title)}</h2></div>
-      <p class="lead" data-reveal style="--i:2">${esc(r.text)}</p>
+      <div data-reveal><p class="eyebrow">${esc(s.eyebrow)}</p><h2 class="h2">${esc(s.title)}</h2></div>
+      <p class="lead" data-reveal style="--i:2">${esc(s.text)}</p>
     </div>
     <div class="reviews" data-reveal>
       <div class="reviews-summary">
-        <div class="reviews-score">${esc(s.score)}<small>/ ${s.outOf}</small></div>
-        ${facetRating(Number(s.score), s.outOf)}
-        <p class="reviews-count">${esc(s.label)} across ${s.count} reviews</p>
-        <p class="fine">${esc(r.source)}</p>
-        ${r.placeholder ? `<p class="reviews-flag">${esc(r.placeholderNote)}</p>` : ''}
+        ${summaryOk ? `<div class="reviews-score">${esc(sum.score)}<small>/ 5</small></div>
+        ${facetRating(Number(sum.score))}
+        <p class="reviews-count">Average across ${sum.count} testimonial${sum.count === 1 ? '' : 's'}</p>` : ''}
+        <p class="reviews-links">${testimonials.length > shown.length ? `<a class="link" href="/testimonials/"><span>All testimonials</span>${arrow()}</a>` : ''}${inv.enabled ? `<a class="link" href="/testimonials/#share"><span>${esc(inv.title || 'Share your experience')}</span>${arrow()}</a>` : ''}</p>
+        ${sampleFlag(shown)}
       </div>
       <div class="reviews-stage">
-        ${r.items.map((it, i) => `<figure class="review" id="review-${i}" role="tabpanel" aria-labelledby="review-tab-${i}" tabindex="0" style="--i:${i}">
-          <blockquote>${esc(it.quote)}</blockquote>
-          <figcaption>
-            <span class="review-who">${esc(it.name)}</span>
-            <span class="review-role">${esc(it.role)}, ${esc(it.organisation)}</span>
-            <span class="review-meta">${facetRating(it.rating)}<span>${esc(it.matter)}</span><span>${esc(fmtDate(it.date + '-01'))}</span></span>
-          </figcaption>
-        </figure>`).join('')}
+        ${shown.map((t, i) => testimonialFigure(t, ` id="review-${i}" role="tabpanel" aria-labelledby="review-tab-${i}" tabindex="0" style="--i:${i}"`)).join('')}
       </div>
-      <div class="reviews-pick" role="tablist" aria-label="Client reviews">
-        ${r.items.map((it, i) => `<button class="review-tab" type="button" role="tab" id="review-tab-${i}" aria-controls="review-${i}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">
-          <span class="review-tab-name">${esc(it.name)}</span><span class="review-tab-org">${esc(it.organisation)}</span>
+      <div class="reviews-pick" role="tablist" aria-label="${attr(s.eyebrow)}">
+        ${shown.map((t, i) => `<button class="review-tab" type="button" role="tab" id="review-tab-${i}" aria-controls="review-${i}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">
+          <span class="review-tab-name">${esc(shownName(t))}</span><span class="review-tab-org">${esc(t.display === 'anonymous' ? (t.matter || '') : (t.organisation || t.matter || ''))}</span>
           <i class="review-tick" aria-hidden="true"></i>
         </button>`).join('')}
       </div>
-      <div class="reviews-hold">
+      ${shown.length > 1 ? `<div class="reviews-hold">
         <div class="reviews-progress" aria-hidden="true"><i></i></div>
         <button class="reviews-toggle" type="button" hidden>Pause</button>
-      </div>
+      </div>` : ''}
     </div>
   </div>
 </section>`;
@@ -254,7 +324,7 @@ function renderHome() {
   </div>
 </section>
 
-${reviewsSection()}
+${testimonialsSection()}
 
 <section class="chrome">
   <div class="wrap tools">
@@ -552,7 +622,7 @@ ${pageHead({ crumbs: [['Home', '/'], ['Insights', '/insights/'], [a.title]], tit
   <div class="wrap article-layout">
     <article data-reveal>
       ${a.image && hasImage(a.image) ? `<div class="article-hero mb-2">${img(a.image, { alt: a.imageAlt || '', sizes: '(max-width: 960px) 100vw, 860px' })}</div>` : ''}
-      <div class="prose">${a.body.join('')}</div>
+      <div class="prose">${a.html}</div>
       ${a.gallery.length ? `<div class="gallery">${a.gallery.map(g => img(g, { alt: '', sizes: '(max-width: 600px) 100vw, 400px' })).join('')}</div>` : ''}
       <p class="mt-3"><a class="link" href="/insights/">${arrowLeft()}<span>All insights</span></a></p>
     </article>
@@ -649,6 +719,7 @@ ${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'G
       <p class="eyebrow">Send an enquiry</p>
       <h2 class="h2">Tell us where the matter stands</h2>
       <p class="lead">A short description is enough to start. Every enquiry is treated as confidential.</p>
+      ${testimonialSettings.invite?.enabled ? `<p class="mt-2"><a class="link" href="/testimonials/#share"><span>Worked with us? ${esc(testimonialSettings.invite.title || 'Share your experience')}</span>${arrow()}</a></p>` : ''}
     </div>
     <form class="form" id="contact-form" action="/contact.php" method="post" novalidate data-reveal style="--i:2" data-mailto="${site.email}">
       <div class="hp" aria-hidden="true"><label for="hsg_leave_blank">Leave this field blank</label><input id="hsg_leave_blank" name="hsg_leave_blank" type="text" tabindex="-1" autocomplete="off"></div>
@@ -671,6 +742,67 @@ ${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'G
   </div>
 </section>`;
   write('/contact/', page({ title: 'Contact', description: `Contact HSG Attorneys in Durban (${site.offices[0].phones[0]}) or Cape Town (${site.offices[1].phones[0]}), email ${site.email}, or send an enquiry online.`, path: '/contact/', body, jsonld: [breadcrumbLd([['Home', '/'], ['Contact', '/contact/']])] }));
+}
+
+/* ---------- testimonials: every published one, and the form for clients ----------
+   The page exists while either half is switched on in the admin. Submissions go to
+   testimonial.php, which records them for review; nothing reaches this page until it has
+   been read and marked published in the admin, and only with the client's consent. */
+function renderTestimonials() {
+  const s = testimonialSettings, inv = s.invite || {};
+  const showList = s.enabled && testimonials.length > 0;
+  if (!showList && !inv.enabled) return;
+  const matters = [...pillars.map(p => p.title), 'Something else'];
+  const body = `
+${pageHead({ crumbs: [['Home', '/'], [s.eyebrow]], eyebrow: s.eyebrow, title: showList ? s.title : (inv.title || 'Share your experience'), lead: showList ? s.text : inv.text })}
+${showList ? `<section class="section">
+  <div class="wrap">
+    ${sampleFlag(testimonials)}
+    <div class="testimonial-list">${testimonials.map((t, i) => testimonialFigure(t, ` data-reveal style="--i:${i % 4}"`)).join('')}</div>
+  </div>
+</section>` : ''}
+${inv.enabled ? `<section class="section${showList ? ' ruled' : ''}" id="share">
+  <div class="wrap split">
+    <div data-reveal>
+      <p class="eyebrow">Your experience</p>
+      <h2 class="h2">${esc(inv.title || 'Share your experience')}</h2>
+      <p class="lead">${esc(inv.text || '')}</p>
+      <p class="fine muted">Your email address is only used to confirm the testimonial is yours and is never published. You can ask for a testimonial to be changed or removed at any time.</p>
+    </div>
+    <form class="form" id="testimonial-form" action="/testimonial.php" method="post" novalidate data-reveal style="--i:2">
+      <div class="hp" aria-hidden="true"><label for="t_hsg_leave_blank">Leave this field blank</label><input id="t_hsg_leave_blank" name="hsg_leave_blank" type="text" tabindex="-1" autocomplete="off"></div>
+      <div class="form-row">
+        <div class="field"><label for="t_name">Your name</label><input id="t_name" name="name" type="text" autocomplete="name" maxlength="100" required><span class="error">Please enter your name.</span></div>
+        <div class="field"><label for="t_email">Email <span class="req">(not published)</span></label><input id="t_email" name="email" type="email" autocomplete="email" maxlength="120" required><span class="error">Please enter a valid email address.</span></div>
+      </div>
+      <fieldset class="field choice">
+        <legend>How should we show your name?</legend>
+        <label><input type="radio" name="display" value="full" checked> In full</label>
+        <label><input type="radio" name="display" value="initials"> Initials only</label>
+        <label><input type="radio" name="display" value="anonymous"> Not at all — “Private client”</label>
+      </fieldset>
+      <div class="form-row">
+        <div class="field"><label for="t_role">Your role <span class="req">(optional)</span></label><input id="t_role" name="role" type="text" maxlength="80" autocomplete="organization-title"></div>
+        <div class="field"><label for="t_org">Organisation <span class="req">(optional)</span></label><input id="t_org" name="organisation" type="text" maxlength="100" autocomplete="organization"></div>
+      </div>
+      <div class="field"><label for="t_matter">What did we help with?</label><select id="t_matter" name="matter"><option value="">Choose one</option>${matters.map(m => `<option value="${attr(m)}">${esc(m)}</option>`).join('')}</select></div>
+      <fieldset class="field choice rate">
+        <legend>Your rating</legend>
+        ${[5, 4, 3, 2, 1].map(n => `<label><input type="radio" name="rating" value="${n}"${n === 5 ? ' checked' : ''}> ${n} of 5</label>`).join('')}
+      </fieldset>
+      <div class="field"><label for="t_quote">Your testimonial</label><textarea id="t_quote" name="quote" minlength="30" maxlength="1200" required></textarea><span class="error">Please write at least a sentence or two (30 characters or more).</span></div>
+      <label class="check"><input id="t_consent" name="consent" type="checkbox" value="yes" required><span>I agree that HSG Attorneys may publish this testimonial on its website, with my name shown as I have chosen above, and may process my details to confirm it with me, as described in the <a href="/privacy/">privacy policy</a>. I can ask for it to be removed at any time.</span></label>
+      <div class="form-status" role="status" aria-live="polite"></div>
+      <div class="btn-row"><button class="btn" type="submit">Send testimonial${arrow()}</button></div>
+    </form>
+  </div>
+</section>` : ''}
+${contactBand()}`;
+  write('/testimonials/', page({
+    title: showList ? s.eyebrow : (inv.title || 'Share your experience'),
+    description: showList ? `What clients say about working with HSG Attorneys — ${testimonials.length} testimonial${testimonials.length === 1 ? '' : 's'}, published with their consent.` : 'Share your experience of working with HSG Attorneys.',
+    path: '/testimonials/', body, jsonld: [breadcrumbLd([['Home', '/'], [s.eyebrow, '/testimonials/']])],
+  }));
 }
 
 /* ---------- legal ---------- */
@@ -698,6 +830,8 @@ async function copyStatic() {
     for (const f of readdirSync(dir)) writeFileSync(join(dir, f), rebase(readFileSync(join(dir, f), 'utf8')));
   }
   cpSync('src/fonts', 'dist/fonts', { recursive: true });
+  // The website admin (Sveltia CMS): a page, its config and its own .htaccess.
+  cpSync('src/admin', 'dist/admin', { recursive: true });
   cpSync('images/src/brand/favicon.svg', 'dist/favicon.svg');
   cpSync('tariffs.json', 'dist/tariffs.json');
   await sharp('images/src/brand/favicon.svg', { density: 384 }).resize(180, 180, { fit: 'contain', background: '#121212' }).png().toFile('dist/apple-touch-icon.png');
@@ -726,7 +860,7 @@ async function copyStatic() {
   // robots + sitemap
   writeFileSync('dist/robots.txt', STAGING
     ? ['User-agent: *', 'Disallow: /', ''].join('\n')
-    : `User-agent: *\nAllow: /\nDisallow: /contact.php\nSitemap: ${site.url}/sitemap.xml\n`);
+    : `User-agent: *\nAllow: /\nDisallow: /contact.php\nDisallow: /testimonial.php\nDisallow: /admin/\nSitemap: ${site.url}/sitemap.xml\n`);
   const today = new Date().toISOString().slice(0, 10);
   const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(([p, lm]) => `  <url><loc>${site.url}${p}</loc><lastmod>${lm || today}</lastmod></url>`).join('\n')}\n</urlset>\n`;
   writeFileSync('dist/sitemap.xml', sm);
@@ -735,6 +869,6 @@ async function copyStatic() {
 /* ---------- run ---------- */
 if (!existsSync('build/images.json')) { console.error('build/images.json missing — run `node scripts/images.mjs` first'); process.exit(1); }
 mkdirSync('dist', { recursive: true });
-renderHome(); renderPractice(); renderAbout(); renderTeam(); renderInsights(); renderCalculators(); renderContact(); renderLegal(); renderNotFound();
+renderHome(); renderPractice(); renderAbout(); renderTeam(); renderInsights(); renderCalculators(); renderContact(); renderTestimonials(); renderLegal(); renderNotFound();
 await copyStatic();
 console.log(`built ${written} pages → dist/ (css ${assets.css}, js ${assets.js})${STAGING ? ' — STAGING: noindex' : ''}${BASE ? ` — BASE ${BASE}` : ''}`);

@@ -8,7 +8,8 @@ import { join } from 'node:path';
 
 const DIST = 'dist';
 const walk = dir => readdirSync(dir).flatMap(f => { const p = join(dir, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
-const pages = walk(DIST).filter(f => f.endsWith('.html'));
+// The admin (/admin, Sveltia CMS) is an app shell, not a page of the site.
+const pages = walk(DIST).filter(f => f.endsWith('.html') && !/[\\/]admin[\\/]/.test(f));
 const resolves = href => {
   const p = href.split('#')[0].split('?')[0];
   if (!p || p === '/') return existsSync(join(DIST, 'index.html'));
@@ -44,9 +45,12 @@ for (const page of pages) {
   }
   for (const m of html.matchAll(/<img\b[^>]*>/g)) if (!/\balt=/.test(m[0])) bad(page, 'img without alt', m[0].slice(0, 80));
 }
-if (JSON.parse(readFileSync('content/reviews.json', 'utf8')).placeholder) {
-  console.log('note: the client reviews are sample text (content/reviews.json "placeholder": true). Fine for a draft — `npm run pack` refuses to build the live zip until it is false.');
-}
+// Sample testimonials are written to show the design. A staging build shows them with a
+// label; a live build must never contain them.
+const staging = /^Disallow: \/\s*$/m.test(readFileSync(join(DIST, 'robots.txt'), 'utf8'));
+const withSamples = pages.filter(p => readFileSync(p, 'utf8').includes('class="reviews-flag"'));
+if (withSamples.length && !staging) for (const p of withSamples) bad(p, 'sample testimonials on a live build');
+else if (withSamples.length) console.log(`note: sample testimonials are shown on ${withSamples.length} page(s) — fine on this staging build, never on the live one.`);
 
 const size = walk(DIST).reduce((a, f) => a + statSync(f).size, 0);
 console.log(`${pages.length} pages checked, ${problems} problem(s), dist/ = ${(size / 1048576).toFixed(1)} MB`);
