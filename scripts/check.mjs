@@ -7,11 +7,14 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const DIST = 'dist';
+const PAGES = process.argv.includes('--github-pages');
+const BASE = ((process.argv.find(a => a.startsWith('--base=')) || '').split('=')[1] || (PAGES ? '/hsg-site' : '')).replace(/\/+$/, '');
 const walk = dir => readdirSync(dir).flatMap(f => { const p = join(dir, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 // The admin (/admin, Sveltia CMS) is an app shell, not a page of the site.
 const pages = walk(DIST).filter(f => f.endsWith('.html') && !/[\\/]admin[\\/]/.test(f));
 const resolves = href => {
-  const p = href.split('#')[0].split('?')[0];
+  let p = href.split('#')[0].split('?')[0];
+  if (BASE && (p === BASE || p.startsWith(BASE + '/'))) p = p.slice(BASE.length) || '/';
   if (!p || p === '/') return existsSync(join(DIST, 'index.html'));
   const file = join(DIST, p);
   return existsSync(file) && (statSync(file).isFile() || existsSync(join(file, 'index.html')));
@@ -45,9 +48,21 @@ for (const page of pages) {
   }
   for (const m of html.matchAll(/<img\b[^>]*>/g)) if (!/\balt=/.test(m[0])) bad(page, 'img without alt', m[0].slice(0, 80));
 }
+if (PAGES) {
+  const files = walk(DIST);
+  for (const file of files) if (file.endsWith('.php') || file.endsWith('.htaccess') || /[\\/]admin[\\/]/.test(file)) bad(file, 'server-only file in GitHub Pages output');
+  for (const page of pages) {
+    const html = readFileSync(page, 'utf8');
+    if (!/<meta name="robots" content="noindex, follow">/.test(html)) bad(page, 'GitHub Pages preview must be noindex');
+    if (/<form\b|action="[^"]+\.php|href="[^"]*#share|id="share"/.test(html)) bad(page, 'form or share-form link in GitHub Pages output');
+  }
+  const robots = readFileSync(join(DIST, 'robots.txt'), 'utf8');
+  if (!/^Allow: \/\s*$/m.test(robots) || /^Disallow: \/\s*$/m.test(robots)) bad(join(DIST, 'robots.txt'), 'robots.txt must allow crawling so crawlers can read noindex metadata');
+  if (existsSync(join(DIST, 'sitemap.xml'))) bad(join(DIST, 'sitemap.xml'), 'preview must not publish the production sitemap');
+}
 // Sample testimonials are written to show the design. A staging build shows them with a
 // label; a live build must never contain them.
-const staging = /^Disallow: \/\s*$/m.test(readFileSync(join(DIST, 'robots.txt'), 'utf8'));
+const staging = PAGES || /^Disallow: \/\s*$/m.test(readFileSync(join(DIST, 'robots.txt'), 'utf8'));
 const withSamples = pages.filter(p => readFileSync(p, 'utf8').includes('class="reviews-flag"'));
 if (withSamples.length && !staging) for (const p of withSamples) bad(p, 'sample testimonials on a live build');
 else if (withSamples.length) console.log(`note: sample testimonials are shown on ${withSamples.length} page(s) — fine on this staging build, never on the live one.`);

@@ -24,6 +24,12 @@ npm run pack:staging # same, but noindex throughout → hsg-site-staging.zip (re
 npm run pack:review  # noindex AND built for a subfolder (hsgattorneys.co.za/review/)
 ```
 
+## GitHub Pages preview
+
+In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. The `Build and deploy GitHub Pages` workflow builds and deploys the static site when `main` changes; it can also be run manually from the Actions tab. The project site is served under `/hsg-site`, and `npm run build:github-pages` applies that base path when building locally. Run `npm run check:github-pages` to check the generated output.
+
+Contact and testimonial submission forms are disabled in this build. The contact page retains the firm's telephone, email and WhatsApp links. Published testimonials remain visible. The Pages preview is marked noindex; `robots.txt` permits crawlers to read that metadata, and the build does not generate the production sitemap. For a local preview, run `npm run serve` and open `http://localhost:4180/hsg-site/`.
+
 ## Editing content
 
 | What | File | Notes |

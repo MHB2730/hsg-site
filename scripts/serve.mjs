@@ -17,7 +17,8 @@ const TYPES = {
 };
 
 createServer(async (req, res) => {
-  const path = decodeURIComponent(req.url.split('?')[0]);
+  const requestedPath = decodeURIComponent(req.url.split('?')[0]);
+  const path = requestedPath.replace(/^\/hsg-site(?=\/|$)/, '') || '/';
   if (req.method === 'POST' && path === '/contact.php') {
     let raw = ''; req.on('data', c => raw += c); req.on('end', () => {
       console.log('contact.php (stub) received:', raw.slice(0, 500));

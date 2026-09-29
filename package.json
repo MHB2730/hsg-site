@@ -6,10 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/images.mjs && node scripts/build.mjs",
-    "build:pages": "node scripts/build.mjs",
+    "build:pages": "npm run build:github-pages",
+    "build:github-pages": "node scripts/images.mjs && node scripts/build.mjs --github-pages",
     "images": "node scripts/images.mjs",
     "serve": "node scripts/serve.mjs",
     "check": "node scripts/check.mjs && node scripts/copy-lint.mjs",
+    "check:github-pages": "node scripts/check.mjs --github-pages && node scripts/copy-lint.mjs",
     "pack": "node scripts/pack.mjs",
     "test:calc": "node scripts/test-calc.mjs",
     "pack:staging": "node scripts/images.mjs && node scripts/build.mjs --staging && node scripts/pack.mjs --staging",

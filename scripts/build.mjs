@@ -1,6 +1,6 @@
 // Static site build: content/*.json + build/images.json -> dist/**.
 // Run `node scripts/images.mjs` first (or `npm run build`, which does both).
-import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, readdirSync, rmSync, unlinkSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import sharp from 'sharp';
@@ -10,7 +10,8 @@ import { site, esc, attr, img, icon, hasImage, arrow, arrowLeft, playIcon, words
 // `--staging` builds a review copy: every page is marked noindex and the server sends
 // X-Robots-Tag too, so a draft on new.hsgattorneys.co.za can never be indexed or end up
 // competing with the live site.
-const STAGING = process.argv.includes('--staging');
+const GITHUB_PAGES = process.argv.includes('--github-pages');
+const STAGING = process.argv.includes('--staging') || GITHUB_PAGES;
 
 const J = f => JSON.parse(readFileSync(f, 'utf8'));
 // People, articles and testimonials are one file per entry, which is how the admin
@@ -81,6 +82,7 @@ let written = 0;
 // mangled form is caught below rather than silently building broken links.)
 const BASE = (() => {
   let v = ((process.argv.find(a => a.startsWith('--base=')) || '').split('=')[1] || '').trim();
+  if (!v && GITHUB_PAGES) v = 'hsg-site';
   if (!v) return '';
   if (/^[A-Za-z]:[\\/]/.test(v) || v.includes('Program Files')) {
     console.error(`--base looks like a filesystem path (${v}). Pass a plain folder name, e.g. --base=review`);
@@ -218,7 +220,7 @@ function testimonialsSection() {
         ${summaryOk ? `<div class="reviews-score">${esc(sum.score)}<small>/ 5</small></div>
         ${facetRating(Number(sum.score))}
         <p class="reviews-count">Average across ${sum.count} testimonial${sum.count === 1 ? '' : 's'}</p>` : ''}
-        <p class="reviews-links">${testimonials.length > shown.length ? `<a class="link" href="/testimonials/"><span>All testimonials</span>${arrow()}</a>` : ''}${inv.enabled ? `<a class="link" href="/testimonials/#share"><span>${esc(inv.title || 'Share your experience')}</span>${arrow()}</a>` : ''}</p>
+        <p class="reviews-links">${testimonials.length > shown.length ? `<a class="link" href="/testimonials/"><span>All testimonials</span>${arrow()}</a>` : ''}${inv.enabled && !GITHUB_PAGES ? `<a class="link" href="/testimonials/#share"><span>${esc(inv.title || 'Share your experience')}</span>${arrow()}</a>` : ''}</p>
         ${sampleFlag(shown)}
       </div>
       <div class="reviews-stage">
@@ -696,7 +698,7 @@ ${contactBand()}`;
 /* ---------- contact ---------- */
 function renderContact() {
   const body = `
-${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'Get in touch', lead: 'Two offices. Call, write, WhatsApp, or send the form and we will come back to you.' })}
+${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'Get in touch', lead: GITHUB_PAGES ? 'Call, email or WhatsApp one of our offices.' : 'Two offices. Call, write, WhatsApp, or send the form and we will come back to you.' })}
 <section class="section">
   <div class="wrap">
     <div class="offices" data-reveal>
@@ -716,11 +718,12 @@ ${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'G
 <section class="section ruled" id="enquire">
   <div class="wrap split">
     <div data-reveal>
-      <p class="eyebrow">Send an enquiry</p>
-      <h2 class="h2">Tell us where the matter stands</h2>
-      <p class="lead">A short description is enough to start. Every enquiry is treated as confidential.</p>
-      ${testimonialSettings.invite?.enabled ? `<p class="mt-2"><a class="link" href="/testimonials/#share"><span>Worked with us? ${esc(testimonialSettings.invite.title || 'Share your experience')}</span>${arrow()}</a></p>` : ''}
+      <p class="eyebrow">${GITHUB_PAGES ? 'Contact HSG' : 'Send an enquiry'}</p>
+      <h2 class="h2">${GITHUB_PAGES ? 'Start a conversation' : 'Tell us where the matter stands'}</h2>
+      <p class="lead">${GITHUB_PAGES ? 'Call or email our team directly.' : 'A short description is enough to start. Every enquiry is treated as confidential.'}</p>
+      ${!GITHUB_PAGES && testimonialSettings.invite?.enabled ? `<p class="mt-2"><a class="link" href="/testimonials/#share"><span>Worked with us? ${esc(testimonialSettings.invite.title || 'Share your experience')}</span>${arrow()}</a></p>` : ''}
     </div>
+    ${GITHUB_PAGES ? `<div class="form" data-reveal style="--i:2"><p class="lead">For enquiries, contact HSG directly by email.</p><p class="btn-row"><a class="btn" href="mailto:${site.email}?subject=${encodeURIComponent('Website enquiry')}">Email HSG${arrow()}</a></p></div>` : `
     <form class="form" id="contact-form" action="/contact.php" method="post" novalidate data-reveal style="--i:2" data-mailto="${site.email}">
       <div class="hp" aria-hidden="true"><label for="hsg_leave_blank">Leave this field blank</label><input id="hsg_leave_blank" name="hsg_leave_blank" type="text" tabindex="-1" autocomplete="off"></div>
       <div class="form-row">
@@ -734,6 +737,7 @@ ${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'G
       <div class="form-status" role="status" aria-live="polite"></div>
       <div class="btn-row"><button class="btn" type="submit">Send enquiry${arrow()}</button><span class="fine muted">Or email <a href="mailto:${site.email}">${site.email}</a></span></div>
     </form>
+    `}
   </div>
 </section>
 <section class="section-tight">
@@ -741,7 +745,7 @@ ${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'G
     ${site.offices.map(o => `<div data-reveal><h3 class="h3 mb-2">${esc(o.city)} office</h3><div class="map-facade" data-q="${attr(o.mapQuery)}"><button class="btn btn-ghost btn-sm" type="button">Load map</button></div></div>`).join('')}
   </div>
 </section>`;
-  write('/contact/', page({ title: 'Contact', description: `Contact HSG Attorneys in Durban (${site.offices[0].phones[0]}) or Cape Town (${site.offices[1].phones[0]}), email ${site.email}, or send an enquiry online.`, path: '/contact/', body, jsonld: [breadcrumbLd([['Home', '/'], ['Contact', '/contact/']])] }));
+  write('/contact/', page({ title: 'Contact', description: `Contact HSG Attorneys in Durban (${site.offices[0].phones[0]}) or Cape Town (${site.offices[1].phones[0]}), email ${site.email}${GITHUB_PAGES ? '.' : ', or send an enquiry online.'}`, path: '/contact/', body, jsonld: [breadcrumbLd([['Home', '/'], ['Contact', '/contact/']])] }));
 }
 
 /* ---------- testimonials: every published one, and the form for clients ----------
@@ -750,8 +754,9 @@ ${pageHead({ crumbs: [['Home', '/'], ['Contact']], eyebrow: 'Contact', title: 'G
    been read and marked published in the admin, and only with the client's consent. */
 function renderTestimonials() {
   const s = testimonialSettings, inv = s.invite || {};
+  const showInvite = inv.enabled && !GITHUB_PAGES;
   const showList = s.enabled && testimonials.length > 0;
-  if (!showList && !inv.enabled) return;
+  if (!showList && !showInvite) return;
   const matters = [...pillars.map(p => p.title), 'Something else'];
   const body = `
 ${pageHead({ crumbs: [['Home', '/'], [s.eyebrow]], eyebrow: s.eyebrow, title: showList ? s.title : (inv.title || 'Share your experience'), lead: showList ? s.text : inv.text })}
@@ -761,7 +766,7 @@ ${showList ? `<section class="section">
     <div class="testimonial-list">${testimonials.map((t, i) => testimonialFigure(t, ` data-reveal style="--i:${i % 4}"`)).join('')}</div>
   </div>
 </section>` : ''}
-${inv.enabled ? `<section class="section${showList ? ' ruled' : ''}" id="share">
+${showInvite ? `<section class="section${showList ? ' ruled' : ''}" id="share">
   <div class="wrap split">
     <div data-reveal>
       <p class="eyebrow">Your experience</p>
@@ -831,7 +836,7 @@ async function copyStatic() {
   }
   cpSync('src/fonts', 'dist/fonts', { recursive: true });
   // The website admin (Sveltia CMS): a page, its config and its own .htaccess.
-  cpSync('src/admin', 'dist/admin', { recursive: true });
+  if (!GITHUB_PAGES) cpSync('src/admin', 'dist/admin', { recursive: true });
   cpSync('images/src/brand/favicon.svg', 'dist/favicon.svg');
   cpSync('tariffs.json', 'dist/tariffs.json');
   await sharp('images/src/brand/favicon.svg', { density: 384 }).resize(180, 180, { fit: 'contain', background: '#121212' }).png().toFile('dist/apple-touch-icon.png');
@@ -855,19 +860,33 @@ async function copyStatic() {
       .replace(/^RedirectMatch .*$/gm, '')
       .replace(new RegExp(`${NL}{3,}`, 'g'), NL + NL);
   }
-  writeFileSync('dist/.htaccess', ht);
-  for (const f of readdirSync('server')) if (f.endsWith('.php')) cpSync(join('server', f), join('dist', f));
+  if (!GITHUB_PAGES) {
+    writeFileSync('dist/.htaccess', ht);
+    for (const f of readdirSync('server')) if (f.endsWith('.php')) cpSync(join('server', f), join('dist', f));
+  }
   // robots + sitemap
-  writeFileSync('dist/robots.txt', STAGING
+  writeFileSync('dist/robots.txt', GITHUB_PAGES
+    ? ['User-agent: *', 'Allow: /', ''].join('\n')
+    : STAGING
     ? ['User-agent: *', 'Disallow: /', ''].join('\n')
     : `User-agent: *\nAllow: /\nDisallow: /contact.php\nDisallow: /testimonial.php\nDisallow: /admin/\nSitemap: ${site.url}/sitemap.xml\n`);
-  const today = new Date().toISOString().slice(0, 10);
-  const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(([p, lm]) => `  <url><loc>${site.url}${p}</loc><lastmod>${lm || today}</lastmod></url>`).join('\n')}\n</urlset>\n`;
-  writeFileSync('dist/sitemap.xml', sm);
+  if (GITHUB_PAGES) {
+    if (existsSync('dist/sitemap.xml')) unlinkSync('dist/sitemap.xml');
+  } else {
+    const today = new Date().toISOString().slice(0, 10);
+    const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(([p, lm]) => `  <url><loc>${site.url}${p}</loc><lastmod>${lm || today}</lastmod></url>`).join('\n')}\n</urlset>\n`;
+    writeFileSync('dist/sitemap.xml', sm);
+  }
 }
 
 /* ---------- run ---------- */
 if (!existsSync('build/images.json')) { console.error('build/images.json missing — run `node scripts/images.mjs` first'); process.exit(1); }
+if (GITHUB_PAGES) {
+  // Do not let a prior PHP-host build leave executable sources in the Pages artifact.
+  rmSync('dist/admin', { recursive: true, force: true });
+  for (const f of readdirSync('dist').filter(f => f.endsWith('.php') || f === '.htaccess')) unlinkSync(join('dist', f));
+  if (existsSync('dist/sitemap.xml')) unlinkSync('dist/sitemap.xml');
+}
 mkdirSync('dist', { recursive: true });
 renderHome(); renderPractice(); renderAbout(); renderTeam(); renderInsights(); renderCalculators(); renderContact(); renderTestimonials(); renderLegal(); renderNotFound();
 await copyStatic();
