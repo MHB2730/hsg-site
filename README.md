@@ -65,19 +65,21 @@ The fields are defined in `src/admin/config.yml`; every key in every file it edi
 listed there, so a save never drops a value the site depends on.
 
 **Setting it up (once):**
-1. The repository has to be on GitHub, private: `MHB2730/hsg-site` (the name is in
-   `src/admin/config.yml`).
+1. The repository is on GitHub: `MHB2730/hsg-site` (the name is in
+   `src/admin/config.yml`). It is **public**, so nothing personal or secret may ever be
+   committed: no client details, no passwords, no hosting details.
 2. **Signing in:** GitHub › Settings › Developer settings › Fine-grained tokens › *Generate*.
    Repository access: *only* `hsg-site`. Permissions: *Contents: Read and write*. Then
    `/admin` › **Sign In Using Access Token** and paste it. The browser keeps you signed in.
 3. **Publishing:** in the repository, Settings › Secrets and variables › Actions:
-   secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` (an FTP user made for this on the
-   hosting package, not a control-panel login); variables `DEPLOY_DIR` (the folder on the
-   server, ending in `/`) and `SITE_MODE` (`staging` until go-live, then `live`).
+   secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` (the hosting package's upload
+   user, not a control-panel login); variables `DEPLOY_DIR` (the folder on the server,
+   ending in `/`), `SFTP_KNOWN_HOSTS` (one line from `ssh-keyscan <host>`, so the password
+   only goes to the real server) and `SITE_MODE` (`staging` until go-live, then `live`).
+   Uploads go over SFTP (port 22) and never delete anything on the server.
    Until `DEPLOY_DIR` is set, saves still build and check but upload nothing.
-4. **Testimonials into the admin:** a second fine-grained token, same repository, same
-   single permission, in `mail-config.php` on the server (`'github' => [...]`, see
-   `server/mail-config.example.php`). A separate token, so it can be revoked on its own.
+4. The server holds **no** GitHub token. (Testimonials used to be committed from the
+   server; they are now emailed and logged only, because the repository is public.)
 
 **Without GitHub:** open `http://localhost:4180/admin/` (after `npm run build` and
 `npm run serve`) in Chrome or Edge and choose **Work with Local Repository**, then this
@@ -89,10 +91,13 @@ folder. It edits the files here directly; build and upload by hand as before.
   Contact page). They choose how they are named — in full, by initials, or not at all —
   and must tick consent. Their email is never published.
 - `testimonial.php` keeps the full submission in `testimonials.log.jsonl` (denied over
-  HTTP), adds the publishable part to the admin as **Pending**, and emails the firm with
-  the client's address. Nothing is public at this point.
-- In the admin, **Testimonials › Waiting for review**: confirm it with the client, set it
-  to **Published**, save. It is on the site a few minutes later.
+  HTTP) and emails it to the firm with the client's address. It is never committed to
+  this repository, which is public. Nothing is public at this point.
+- To publish one: confirm it with the client, then add it in the admin under
+  **Testimonials** with status **Published**, and save. It is on the site a few minutes later.
+- **Switched off as of 20 November 2026** (both switches in `content/testimonials.json`):
+  no panel, no page, no form, and the build leaves `testimonial.php` out of `dist/`.
+  Turn `invite.enabled` back on when the firm is ready to collect them.
 - **Settings › Testimonials** switches the home-page panel and the client form on and off
   independently, and sets the wording. The average rating is worked out from what is
   published, and only shown once there are enough.
@@ -158,8 +163,12 @@ overwrite hand edits in `content/`**, so do not run it unless you mean to.
 - **Practice explorer** — `role="tablist"` tabs with hover intent and arrow-key
   navigation on wide screens; the same markup becomes an accordion below 860 px.
 - **Colour lens** — greyscale photo with a colour twin that bleeds in under the
-  cursor through a feathered opening (`.lens`). A click, or a tap on a touch screen,
-  opens the colour out from that point across the whole frame.
+  cursor through a feathered opening (`.lens`). A click opens the colour out from that
+  point across the whole frame. Touch screens have no cursor, so there the colour opens
+  by itself once the photo reaches the middle of the screen, the "move over the photo"
+  hint is hidden, and a tap still toggles it.
+- **Hero photograph** — a greyscale scene (`scenes/plans-overhead`) dimmed behind the
+  home page statement, under the Facets linework, fading out above the figures row.
 - **LinkedIn posts** — LinkedIn has no public feed API for company pages, so the posts
   are chosen by hand in `content/linkedin.json` and lead the Insights page. Each is a
   card of ours — our caption as the heading, then LinkedIn's own official embed — and an
@@ -170,8 +179,8 @@ overwrite hand edits in `content/`**, so do not run it unless you mean to.
 
 `npm run check` also runs `scripts/copy-lint.mjs`: headings never end in a full stop,
 eyebrows carry no punctuation, leads end in one, no double spaces. Paragraph copy is
-justified site-wide (see the `p` rule at the top of `site.css`); labels and UI text stay
-left-aligned so nothing short is stretched.
+set ragged-right (left-aligned) site-wide; it was justified until November 2026, which
+opened wide gaps between words on phones.
 
 ## Conventions
 - Brand: black chrome (`--chrome`), white paper, greys — no accent colour.

@@ -6,20 +6,17 @@
  * Every accepted submission is:
  *   1. appended to testimonials.log.jsonl (the full record, email and IP
  *      included) BEFORE anything else, so a later failure never loses it;
- *   2. added to the site's GitHub repository as
- *      content/testimonials/<id>.json with "status": "pending" — the
- *      publishable fields only, never the email address or IP — where it
- *      appears in the admin (/admin) under Testimonials for review;
- *   3. announced by email to the firm, with the address to confirm it by.
+ *   2. emailed to the firm, with the address to confirm it by.
  *
- * It becomes public only when someone marks it "published" in the admin,
- * which rebuilds the site. The commit made here carries [skip ci]: a pending
- * testimonial changes nothing on the site, so there is nothing to rebuild.
+ * Nothing is sent anywhere else. In particular it is NOT committed to the site's
+ * GitHub repository: that repository is public, so a commit would publish the
+ * client's name, organisation and words before anyone had reviewed them, and
+ * would keep them in its history even if the testimonial were declined. It
+ * becomes public only when someone adds it in the admin as "published", which
+ * rebuilds the site.
  *
  * Needs, in mail-config.php on the server (see mail-config.example.php):
- *   'github' => ['token' => ..., 'repo' => 'owner/name', 'branch' => 'main'],
  *   'testimonials_to' => 'mailbox@...'   (optional; falls back to 'to')
- * Without the github block, step 2 is skipped and the email says so.
  * ===================================================================== */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -115,46 +112,7 @@ $logged = @file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'testimonials.log.j
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND | LOCK_EX) !== false;
 if (!$logged) { t_errlog("$id: could not write testimonials.log.jsonl"); }
 
-/* ---- 2. into the admin's review queue ---- */
-$entry = array_filter([
-    'status' => 'pending', 'source' => 'website', 'submitted' => $submitted,
-    'name' => $name, 'display' => $display, 'role' => $role, 'organisation' => $org, 'matter' => $matter,
-    'rating' => $rating, 'date' => gmdate('Y-m'), 'quote' => $quote, 'consent' => true,
-], fn ($v) => $v !== '' && $v !== null);
-$gh = is_array($cfg['github'] ?? null) ? $cfg['github'] : [];
-$queued = false; $queueNote = 'no GitHub settings in mail-config.php';
-if (!empty($gh['token']) && !empty($gh['repo'])) {
-    $url = 'https://api.github.com/repos/' . $gh['repo'] . '/contents/content/testimonials/' . $id . '.json';
-    $payload = json_encode([
-        'message' => 'New testimonial awaiting review [skip ci]',
-        'content' => base64_encode(json_encode($entry, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n"),
-        'branch'  => (string)($gh['branch'] ?? 'main'),
-    ]);
-    $headers = ['Accept: application/vnd.github+json', 'Authorization: Bearer ' . $gh['token'], 'X-GitHub-Api-Version: 2022-11-28',
-                'User-Agent: hsgattorneys-website', 'Content-Type: application/json'];
-    $code = 0; $resp = '';
-    if (function_exists('curl_init')) {
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [CURLOPT_CUSTOMREQUEST => 'PUT', CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => $headers,
-                                CURLOPT_RETURNTRANSFER => true, CURLOPT_CONNECTTIMEOUT => 10, CURLOPT_TIMEOUT => 20]);
-        $resp = (string)curl_exec($ch);
-        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($code === 0) { $resp = curl_error($ch); }
-        curl_close($ch);
-    } else {
-        $ctx = stream_context_create(['http' => ['method' => 'PUT', 'header' => implode("\r\n", $headers), 'content' => $payload,
-                                                 'timeout' => 20, 'ignore_errors' => true]]);
-        $resp = (string)@file_get_contents($url, false, $ctx);
-        $status = function_exists('http_get_last_response_headers') ? (http_get_last_response_headers() ?? []) : ($http_response_header ?? []);
-        if (isset($status[0]) && preg_match('#\s(\d{3})\s#', $status[0], $m)) { $code = (int)$m[1]; }
-    }
-    $queued = $code === 201 || $code === 200;
-    // The token is never written anywhere; only the status and GitHub's own message.
-    $queueNote = $queued ? 'added' : "GitHub answered $code: " . mb_substr($resp, 0, 240);
-    if (!$queued) { t_errlog("$id: $queueNote"); }
-}
-
-/* ---- 3. tell the firm ---- */
+/* ---- 2. tell the firm ---- */
 $mailed = false;
 if ($hasConfig) {
     $site = 'https://hsgattorneys.co.za';
@@ -173,9 +131,7 @@ if ($hasConfig) {
         $quote,
         '',
         '—',
-        $queued
-            ? "It is waiting in the admin under Testimonials, marked Pending:\n$site/admin/#/collections/testimonials\nSet its status to Published to put it on the website."
-            : "It could NOT be added to the admin automatically ($queueNote).\nIt is in testimonials.log.jsonl on the server, and above; add it in the admin by hand if it should be published.",
+        "To publish it, confirm it with the client, then add it in the admin with status Published:\n$site/admin/#/collections/testimonials\nIt is also kept in testimonials.log.jsonl on the server.",
         '',
         'Consent to publish, with the name shown as chosen above, was given at ' . $submitted . ' from ' . $ip . '.',
     ];
@@ -195,11 +151,11 @@ if ($hasConfig) {
         if (!$mailed) { t_errlog("$id: email failed: $log"); }
     }
 } else {
-    t_errlog("$id: mail-config.php is missing, so nothing was sent or queued");
+    t_errlog("$id: mail-config.php is missing, so nothing was sent");
 }
 
 /* It counts as received if it was kept anywhere; otherwise the client should try again. */
-$ok = $logged || $queued || $mailed;
+$ok = $logged || $mailed;
 if (!$isJson) { header('Location: /testimonials/?sent=' . ($ok ? '1' : '0') . '#share', true, 303); exit; }
 if (!$ok) { http_response_code(500); }
 echo json_encode(['success' => $ok]);

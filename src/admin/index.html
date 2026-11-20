@@ -14,7 +14,15 @@
     rebuilds and uploads itself (.github/workflows/deploy.yml).
     The version is pinned so an update to the CMS can never change the admin
     unannounced; to upgrade, change the number here and check it still loads.
+    The integrity hash makes the browser refuse this file if a single byte differs from
+    the copy checked on 20 November 2026. It covers this entry file only: at runtime
+    Sveltia also imports helper packages from unpkg (pinned versions, but with no hash),
+    so a compromised unpkg could still reach the admin through those, and with it the
+    GitHub token the admin signs in with. Closing that fully means serving Sveltia and
+    its helpers from /admin/ and dropping unpkg from the CSP. Upgrading means replacing
+    the hash too:
+      curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A
   -->
-  <script src="https://unpkg.com/@sveltia/cms@0.219.0/dist/sveltia-cms.js"></script>
+  <script src="https://unpkg.com/@sveltia/cms@0.219.0/dist/sveltia-cms.js" integrity="sha384-iRo2/G/Yd+23ivYlF2m1uYh8W6MjYXaF6vO+7KTCHX/vWOkzAiOKtmw+7Shrcj0M" crossorigin="anonymous"></script>
 </body>
 </html>

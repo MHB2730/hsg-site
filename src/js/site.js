@@ -106,6 +106,22 @@
     lens.addEventListener('pointerleave', () => lens.classList.remove('is-hot'));
     lens.addEventListener('click', e => { aim(e); lens.classList.add('touched'); lens.classList.toggle('is-on'); });
   });
+  // Touch screens have no cursor to follow, so there the colour opens by itself, from the
+  // centre, once the photograph is well into the screen. A tap still toggles it, and a
+  // photo the visitor has already tapped is left as they chose.
+  const lenses = $$('.lens').filter(l => $('.lens-colour', l));
+  if (lenses.length && !matchMedia('(hover: hover)').matches && 'IntersectionObserver' in window) {
+    // Measured against the middle 60% of the screen, not the photo's own size, so a photo
+    // taller than the screen (a phone held sideways) still opens.
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        if (!e.target.classList.contains('touched')) e.target.classList.add('touched', 'is-on');
+        io.unobserve(e.target);
+      }
+    }, { rootMargin: '-20% 0px -20% 0px', threshold: 0 });
+    lenses.forEach(l => io.observe(l));
+  }
 
   /* ---- milestones: mark passed dots ---- */
   const ms = $$('.milestone');
