@@ -41,11 +41,11 @@ collections:
     label: Testimonials
     label_singular: Testimonial
     description: >-
-      Testimonials sent in through the website arrive here as Pending. Read each one,
-      confirm it with the client by replying to the notification email, then set it to
-      Published. Nothing appears on the website until then. To add one that came in by
-      email or letter, use New Testimonial and tick the consent box only if the client
-      has agreed to be published.
+      Testimonials sent in through the website arrive by email, not here. The site's
+      repository is public, so every save here is public too, Pending and Declined
+      included: add a testimonial only once the client has confirmed it and agreed to
+      be published, and save it straight away as Published. Use New Testimonial, and
+      tick the consent box only if the client has agreed.
     folder: content/testimonials
     format: json
     extension: json

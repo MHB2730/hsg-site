@@ -17,14 +17,11 @@ return [
     // Where enquiries are delivered.
     'to' => 'legal@hsginc.co.za',
 
-    // Envelope + From identity. MUST be a real mailbox on a domain that
-    // publishes SPF for this server. app.hsgattorneys.co.za publishes
-    // "v=spf1 mx a include:spf.host-h.net ?all"; the parent
-    // hsgattorneys.co.za publishes NO SPF, so do not send as the parent.
-    // The website reuses the app's mailbox: app.hsgattorneys.co.za publishes SPF,
-    // the bare hsgattorneys.co.za domain does not (yet). If a root-domain mailbox is
-    // ever preferred, add an SPF record for hsgattorneys.co.za first.
-    'from' => 'HSG Website <webmaster@app.hsgattorneys.co.za>',
+    // Envelope + From identity. MUST be a real mailbox on a domain whose SPF
+    // record allows this server to send, or the firm's mail server will reject
+    // or junk the enquiries. Check the domain's SPF before choosing it. (The real
+    // mailbox and server are in the firm's records, not in this public repository.)
+    'from' => 'HSG Website <MAILBOX@DOMAIN-WITH-SPF>',
 
     // Prefixed to every enquiry subject, followed by " — " and the name.
     // The em dash is MIME-encoded by hsg-mail.php; do not "fix" that by
@@ -38,22 +35,13 @@ return [
     // Falls back to 'to'.
     // 'testimonials_to' => 'you@hsginc.co.za',
 
-    // Testimonials sent in through the website are added to the admin's review queue
-    // (content/testimonials/ in the site's GitHub repository, marked Pending). The token
-    // is a GitHub FINE-GRAINED personal access token limited to that ONE repository,
-    // with Contents: Read and write and nothing else. Without this block the
-    // testimonial is still kept (testimonials.log.jsonl) and emailed, and the email
-    // says it must be added to the admin by hand.
-    // 'github' => [
-    //     'token'  => 'github_pat_PUT-THE-REAL-TOKEN-HERE',
-    //     'repo'   => 'MHB2730/hsg-site',
-    //     'branch' => 'main',
-    // ],
+    // No GitHub token belongs here. Testimonials are emailed and logged only; they are
+    // never committed to the site's repository, which is public (testimonial.php).
 
     'smtp' => [
-        'host'     => 'smtp.app.hsgattorneys.co.za',
+        'host'     => 'SMTP-HOST',
         'port'     => 465,                 // implicit TLS (ssl://)
-        'username' => 'webmaster@app.hsgattorneys.co.za',
+        'username' => 'MAILBOX@DOMAIN-WITH-SPF',
         'password' => 'PUT-THE-REAL-PASSWORD-HERE',
         'timeout'  => 30,
     ],

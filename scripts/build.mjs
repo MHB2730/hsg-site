@@ -256,6 +256,7 @@ function renderHome() {
   const marqueeItems = services.map(s => `<span>${esc(s.title)}</span>`).join('');
   const body = `
 <section class="hero chrome" data-facets="1">
+  ${img('scenes/plans-overhead', { alt: '', sizes: '100vw', cls: 'hero-photo', priority: true })}
   <div class="wrap hero-inner">
     <p class="eyebrow">${esc(h.eyebrow)}</p>
     <h1 class="display">${words(h.title)}</h1>
@@ -862,7 +863,9 @@ async function copyStatic() {
   }
   if (!GITHUB_PAGES) {
     writeFileSync('dist/.htaccess', ht);
-    for (const f of readdirSync('server')) if (f.endsWith('.php')) cpSync(join('server', f), join('dist', f));
+    // While the client form is switched off, its handler is left out too, so nothing can post to it.
+    for (const f of readdirSync('server')) if (f.endsWith('.php') && (f !== 'testimonial.php' || testimonialSettings.invite?.enabled)) cpSync(join('server', f), join('dist', f));
+    if (!testimonialSettings.invite?.enabled) rmSync('dist/testimonial.php', { force: true });
   }
   // robots + sitemap
   writeFileSync('dist/robots.txt', GITHUB_PAGES

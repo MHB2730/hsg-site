@@ -4,25 +4,19 @@ The new site is a folder of files. Going live means putting that folder where
 WordPress currently lives, with the contact-form mail config alongside it. Do it on a
 staging subdomain first so the partners can review, then cut over.
 
-## Where things are hosted (checked 24 September 2026)
-Everything is at **xneelo**, but in **two separate accounts**:
+## Where things are hosted
+This repository is public, so the hosting details (servers, accounts, mailboxes) are kept
+in the firm's own records, not here. What matters for going live:
 
-| | Server | Account |
-|---|---|---|
-| `app.hsgattorneys.co.za` (the calculators app) | www36.flk1.host-h.net | Matt's |
-| `hsgattorneys.co.za` (WordPress) | www32.flk1.host-h.net | another account |
-| `mail.hsgattorneys.co.za` (the domain's email) | www32 — the same package as WordPress | another account |
-
-- A **review copy** can go in Matt's own account as a new subdomain package, exactly as
-  the app did — `app.hsgattorneys.co.za` is its own small DNS zone there, and a second
-  one works the same way. No one else is needed for that.
-- **Going live** needs access to the account holding `hsgattorneys.co.za`. The least to
-  ask its holder for is an **FTP user on the hsgattorneys.co.za package** — enough for the
-  cut-over and for the admin's automatic publishing, and it cannot touch email or DNS.
-  The package's username shows in WordPress: Tools › Site Health › Info › Directories and
-  Sizes, as `/usr/www/users/<username>/`.
-- **Email for the domain lives on that same package.** Nothing here moves it; nobody
-  should move the package or change the domain's MX record as part of this.
+- The live domain, its WordPress site and **the domain's email are on the same hosting
+  package**. Nothing here moves it; nobody should move the package or change the
+  domain's MX record as part of this.
+- **Going live** needs access to that package. The least to ask its holder for is an
+  **FTP user on that package** — enough for the cut-over and for the admin's automatic
+  publishing, and it cannot touch email or DNS. The host accepts uploads over **SFTP on
+  port 22** only; the publishing workflow uses SFTP.
+- A **review copy** can go on a separate subdomain package instead, with no one else
+  needed.
 
 ## 0. Before anything: back up WordPress
 The WordPress package's control panel → **Backup** → download a full backup (files + database). Keep it for
@@ -31,7 +25,7 @@ at least a few months; it is the only way back to the old site.
 ## 1. Stage it on a subdomain (review copy)
 This is how the directors see it before anything touches the live site.
 
-1. xneelo control panel (Matt's account, where the app is) → **Web Hosting → Add** →
+1. The hosting control panel (the account that holds the calculators app) → **Web Hosting → Add** →
    `new.hsgattorneys.co.za`. Note the web-root folder it creates, and switch on SSL for it
    as for the app. (A second paid package; cancel it after go-live.)
 2. On your PC: `npm run pack:staging` → **`hsg-site-staging.zip`**. Use this one for
@@ -51,8 +45,8 @@ This is how the directors see it before anything touches the live site.
    with a shared password. Send the directors the address plus that username and
    password.
 6. Test before sending: every menu item, the calculators, the LinkedIn posts, a real
-   contact-form submission, a test testimonial (it should arrive by email and in the
-   admin as Pending), and the 404 page.
+   contact-form submission, and the 404 page. (Client testimonials are switched off for
+   now; when they are back on, a test one should arrive by email.)
 
 Send the directors: the address, the login if you set one, and a note that it is a
 draft for comment.
@@ -111,7 +105,10 @@ DDoS protection and automatic HTTPS — the last big performance step.
 ## Updating the site later
 Normally through the admin (`/admin`): save, and the site rebuilds and uploads itself.
 After go-live, change the repository variables to the live package — `DEPLOY_DIR` to its
-web root and `SITE_MODE` to `live` — and give the FTP secrets for that package's FTP user.
+web root and `SITE_MODE` to `live` — and give the FTP secrets for that package's FTP user,
+plus `SFTP_KNOWN_HOSTS` (the server's public key: one line from `ssh-keyscan <host>`).
+The upload never deletes anything on the server; a page removed from the site must be
+deleted there by hand.
 
 By hand, if ever needed:
 ```bash
@@ -129,10 +126,12 @@ If the email ever fails, the lead is still in the log and the error in
 `mail-errors.log`. The recipient is `to` in `mail-config.php` (or `contact_to` if you
 want website enquiries separated from calculator quotes).
 
-Testimonials go through `testimonial.php`: kept in `testimonials.log.jsonl`, added to
-the admin as Pending (needs the `github` block in `mail-config.php`), and emailed to
-`testimonials_to` (or `to`). Failures are in `testimonial-errors.log`. All of these
-logs are refused over HTTP by `.htaccess`.
+Testimonials go through `testimonial.php`: kept in `testimonials.log.jsonl` and emailed
+to `testimonials_to` (or `to`); never committed to the repository, which is public.
+Failures are in `testimonial-errors.log`. All of these logs are refused over HTTP by
+`.htaccess`. While testimonials are switched off the build leaves `testimonial.php` out;
+if an older copy is on the server, delete it, and remove any `'github'` block from the
+server's `mail-config.php` (revoking that token in GitHub too, if one was ever made).
 
 ## Rollback
 Rename `public_html` → `public_html_new` and `public_html_wordpress` → `public_html`.
