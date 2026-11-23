@@ -314,6 +314,10 @@ p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; text-wrap: pretty
 .service-card:hover { background: var(--paper-2); --icon-bg: var(--paper-2); }
 .service-card .icon { width: 3.25rem; height: 3.25rem; color: var(--ink); }
 .service-card .icon svg { width: 100%; height: 100%; }
+/* Practice icons are black and white at rest; the accent shape (class "ia") takes the
+   icon's own colour (--c, one per practice group) when its card is hovered or focused. */
+.icon .ia { fill: var(--icon-bg, #fff); transition: fill var(--dur) var(--ease-out); }
+a:hover > .icon .ia, a:focus-visible > .icon .ia { fill: var(--c); }
 .service-card h3 { font-size: 1.15rem; }
 .service-card p { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); flex: 1; }
 

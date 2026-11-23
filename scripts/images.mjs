@@ -37,20 +37,9 @@ for (const file of walk(SRC)) {
   if (ext === '.svg') {
     let svg = readFileSync(file, 'utf8');
     if (folder === 'services') {
-      // Line icons exported from Illustrator: keep their internal <style> and inline
-      // styles (the white fills are masks), but scope every class and id to the icon
-      // so several can be inlined on one page, and map the colours to CSS.
-      svg = svg.replace(/<\?xml[^>]*>/, '').replace(/<!DOCTYPE[^>]*>/, '')
-        .replace(/\s(x|y)="0px"/g, '').replace(/\sxml:space="preserve"/, '').replace(/\sid="Layer_1"/, '')
-        .replace(/enable-background:new [^;"]*;?/g, '').replace(/\sstyle=""/g, '')
-        .replace(/\.st(\d+)/g, `.${name}-st$1`)
-        .replace(/class="([^"]+)"/g, (m, c) => `class="${c.split(/\s+/).map(x => /^st\d+$/.test(x) ? `${name}-${x}` : x).join(' ')}"`)
-        .replace(/id="([^"]+)"/g, (m, id) => `id="${name}-${id}"`).replace(/url\(#([^)]+)\)/g, (m, id) => `url(#${name}-${id})`).replace(/xlink:href="#([^"]+)"/g, (m, id) => `xlink:href="#${name}-${id}"`)
-        .replace(/stroke:#231F20/gi, 'stroke:currentColor').replace(/fill:#231F20/gi, 'fill:currentColor')
-        .replace(/fill:#FFFFFF/gi, 'fill:var(--icon-bg,#fff)')
-        .replace(/stroke-miterlimit:10;/g, 'stroke-miterlimit:10;stroke-width:1.15;')
-        .replace(/<svg /, '<svg aria-hidden="true" focusable="false" ')
-        .replace(/\s+/g, ' ').replace(/>\s+</g, '><');
+      // Hand-drawn line icons, inlined so they take the text colour. Shapes with class "ia"
+      // are the accent: page-coloured at rest, the icon's own --c colour on hover (site.css).
+      svg = svg.replace(/<svg /, '<svg aria-hidden="true" focusable="false" ').replace(/\s+/g, ' ').replace(/>\s+</g, '><');
       manifest[key] = { type: 'inline-svg', svg };
     } else {
       const out = owns(join(outDir, `${name}.svg`));

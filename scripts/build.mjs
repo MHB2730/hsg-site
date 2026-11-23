@@ -346,7 +346,7 @@ function timeline() {
   const items = about.appointments;
   return `<div class="timeline" data-reveal>
     <div class="timeline-track" tabindex="0" aria-label="Appointments — scroll horizontally">
-      ${items.map(a => `<article class="tl-item"><div class="tl-when">${esc(a.from)}<small>${a.to === 'Current' ? 'to date' : `– ${esc(a.to)}`}</small></div><div class="tl-client">${esc(a.client)}</div><p class="tl-text">${esc(a.short || a.text)}</p></article>`).join('')}
+      ${items.map(a => `<article class="tl-item"><div class="tl-when">${a.from ? `${esc(a.from)}<small>${a.to === 'Current' ? 'to date' : `– ${esc(a.to)}`}</small>` : 'Ongoing'}</div><div class="tl-client">${esc(a.client)}</div><p class="tl-text">${esc(a.short || a.text)}</p></article>`).join('')}
     </div>
     <div class="timeline-nav">
       <button class="icon-btn" type="button" data-prev aria-label="Previous">${arrowLeft('')}</button>
@@ -445,12 +445,7 @@ ${bandImage('scenes/library-shelf', 'An attorney at the firm’s law library')}
       <p class="mt-2"><a class="btn btn-ghost btn-sm" href="/images/${e.certificate}" rel="noopener">${esc(e.certificateLabel)}${arrow()}</a></p>
     </div>
     <div data-reveal style="--i:2">
-      <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-        <div class="stat"><div class="stat-value"><span data-count="56">56</span><small>%</small></div><div class="stat-label">Women</div></div>
-        <div class="stat"><div class="stat-value"><span data-count="36">36</span><small>%</small></div><div class="stat-label">Black staff</div></div>
-        <div class="stat"><div class="stat-value"><span data-count="34">34</span><small>%</small></div><div class="stat-label">Youth</div></div>
-      </div>
-      <ul class="prose mt-3">${e.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+      <ul class="prose">${e.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
     </div>
   </div>
 </section>
@@ -462,7 +457,7 @@ ${bandImage('scenes/library-shelf', 'An attorney at the firm’s law library')}
       <p class="lead" data-reveal style="--i:2">${esc(about.appointmentsIntro)}</p>
     </div>
     <ol class="appointments">
-      ${about.appointments.map((a, i) => `<li class="appointment" data-reveal style="--i:${i % 3}"><div class="when">${esc(a.from)} – ${esc(a.to === 'Current' ? 'present' : a.to)}</div><div class="client">${esc(a.client)}</div><p>${esc(a.text)}</p></li>`).join('')}
+      ${about.appointments.map((a, i) => `<li class="appointment" data-reveal style="--i:${i % 3}"><div class="when">${a.from ? `${esc(a.from)} – ${esc(a.to === 'Current' ? 'present' : a.to)}` : 'Ongoing'}</div><div class="client">${esc(a.client)}</div><p>${esc(a.text)}</p></li>`).join('')}
     </ol>
   </div>
 </section>
