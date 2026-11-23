@@ -120,8 +120,11 @@ and JS carry a content hash in their URLs, so visitors always get the new versio
 `npm run pack` refuses to zip a staging build as the live site.
 
 ## Where enquiries go
-`contact.php` validates, rate-limits, writes `leads.log.jsonl` (in the web root,
-blocked from the public by `.htaccess`) and sends via SMTP using `mail-config.php`.
+`contact.php` validates, rate-limits, writes `leads.log.jsonl` and sends via SMTP using
+`mail-config.php`. Every log goes in a `hsg-leads/` folder beside the web root (outside
+it, so never served) when that folder exists and is writable; otherwise in the web root,
+blocked from the public by `.htaccess`. Logs are trimmed to 365 days, at most once a day,
+when a real enquiry comes in.
 If the email ever fails, the lead is still in the log and the error in
 `mail-errors.log`. The recipient is `to` in `mail-config.php` (or `contact_to` if you
 want website enquiries separated from calculator quotes).
