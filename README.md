@@ -101,9 +101,10 @@ folder. It edits the files here directly; build and upload by hand as before.
 - **Settings › Testimonials** switches the home-page panel and the client form on and off
   independently, and sets the wording. The average rating is worked out from what is
   published, and only shown once there are enough.
-- The six sample testimonials (`"sample": true`) show on staging builds only, labelled,
-  and never on the live site — `npm run check` fails a live build that contains them.
-  Delete them once real ones are in.
+- The six invented sample testimonials were deleted on 23 November 2026. A testimonial marked
+  `"sample": true` still shows on staging builds only, and `npm run check` fails a live build that
+  contains one. Before switching testimonials on, update the privacy policy: the form collects name,
+  email, organisation, role, IP address and browser.
 
 ## Calculators
 

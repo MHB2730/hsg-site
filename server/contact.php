@@ -140,6 +140,8 @@ if (!$ok) {
     @file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'mail-errors.log', gmdate('c') . ' ' . str_replace(["\r", "\n"], ' | ', $log) . "\n", FILE_APPEND | LOCK_EX);
 }
 
+hsg_housekeeping(__DIR__);
+
 if (!$isJson) {
     // No-JS fallback: bounce back to the contact page with a status flag.
     header('Location: /contact/?sent=' . ($ok ? '1' : '0') . '#enquire', true, 303);
