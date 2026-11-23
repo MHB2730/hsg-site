@@ -1,6 +1,6 @@
 {
   "title": "Property cost calculators",
-  "lead": "Estimate transfer duty, conveyancing fees, bond registration costs and repayments before you commit. Rates are the current SARS, LSSA and Deeds Office tariffs.",
+  "lead": "Estimate transfer duty, conveyancing fees, bond registration costs and repayments before you commit. Rates as at 7 July 2026: SARS transfer duty from 1 April 2026, the LSSA conveyancing fee guideline from 1 July 2026 and Deeds Office fees from 1 April 2026.",
   "note": "These are estimates. Ask us for a formal quote and we will confirm the figures for your transaction.",
   "quoteLabel": "Request a formal quote",
   "appNote": "The same calculators install to your phone and work offline.",
@@ -35,7 +35,7 @@
       "id": "bond",
       "label": "Bond registration",
       "title": "What will registering the bond cost?",
-      "intro": "The costs of registering a mortgage bond over the property, payable to the bank's attorneys.",
+      "intro": "The costs of registering a mortgage bond over the property, payable to the bank’s attorneys.",
       "fields": [
         {
           "name": "loan",

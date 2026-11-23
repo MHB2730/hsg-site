@@ -253,7 +253,7 @@ export function transferCostBreakdown(price) {
 
   const items = [
     { label: 'Transfer duty (SARS)', amount: duty, note: 'Tax on property over R' + threshold.toLocaleString('en-ZA') },
-    { label: 'Conveyancing (transfer) fee', amount: fee, note: 'Attorney fee — LSSA tariff' },
+    { label: 'Conveyancing (transfer) fee', amount: fee, note: 'Attorney fee — LSSA guideline' },
     { label: 'VAT on attorney fee', amount: vat, note: vatPct() },
     { label: 'Deeds Office fee', amount: deeds, note: 'Registration of transfer' },
     { label: 'Rates clearance certificate', amount: rateCertificateFee, note: 'From the municipality' },
@@ -272,7 +272,7 @@ export function bondCostBreakdown(loan) {
   const disbursementsFee = RATES.bond.disbursementsFee;
 
   const items = [
-    { label: 'Bond registration fee', amount: fee, note: 'Attorney fee — LSSA tariff' },
+    { label: 'Bond registration fee', amount: fee, note: 'Attorney fee — LSSA guideline' },
     { label: 'VAT on attorney fee', amount: vat, note: vatPct() },
     { label: 'Deeds Office fee', amount: deeds, note: 'Registration of bond' },
     { label: 'Disbursements', amount: disbursementsFee, note: 'Postage, petties' },

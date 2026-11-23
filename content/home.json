@@ -1,7 +1,7 @@
 {
   "hero": {
     "eyebrow": "Property · Land · Planning · Environmental",
-    "title": "Specialist attorneys for land, property and development",
+    "title": "Attorneys for land, property and development",
     "lead": "Since 1990 we have worked in conveyancing, planning, environmental and land-legal matters for developers, communities and government, from offices in Durban and Cape Town.",
     "primary": { "label": "Start a matter", "href": "/contact/" },
     "secondary": { "label": "What we do", "href": "#practice" }
@@ -27,7 +27,7 @@
   },
   "people": {
     "eyebrow": "People",
-    "title": "Directors lead each matter",
+    "title": "Led by directors",
     "text": "Supported by associates, candidate attorneys, conveyancing secretaries and a property-administration team of more than sixty."
   },
   "tools": {

@@ -88,9 +88,11 @@ button { font: inherit; color: inherit; }
 .skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 1000; padding: .6rem 1rem; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); }
 .skip-link:focus { top: 1rem; }
 
-/* Paragraph copy is set ragged-right: justified text opened wide gaps between words
-   on narrow screens. text-wrap: pretty keeps the last lines from ending on one word. */
-p { text-wrap: pretty; }
+/* Paragraph copy is justified throughout (owner's choice, 20 November 2026), with automatic
+   hyphenation (lang en-ZA) to keep word gaps even on phones; labels, short leads and UI text stay ragged. */
+p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; text-wrap: pretty; }
+.eyebrow, .byline, .crumbs, .form-status, .fine, .card .meta, .tl-when, .menu-foot, .footer-legal, .person-role, .no-justify,
+.hero .lead, .page-head .lead, .section-head .lead, .band .lead, .notfound p, .tool p, .contact-card p, .footer-brand p, .explorer-service p, .check span { text-align: left; hyphens: manual; -webkit-hyphens: manual; }
 
 /* Cross-document page transitions: a short crossfade where supported. */
 @view-transition { navigation: auto; }
@@ -135,7 +137,7 @@ p { text-wrap: pretty; }
 .prose h3 { font-size: 1.2rem; margin-top: 1.8em; }
 .prose h2 + *, .prose h3 + * { margin-top: .6em; }
 .prose ul { padding-left: 1.1em; }
-.prose li { padding-left: .25em; }
+.prose li { padding-left: .25em; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
 .prose li::marker { color: var(--muted); }
 .prose a { text-decoration-color: var(--line-2); }
 .prose a:hover { text-decoration-color: currentColor; }
@@ -225,14 +227,6 @@ p { text-wrap: pretty; }
 .page-head { position: relative; overflow: hidden; isolation: isolate; }
 .page-head .facets { opacity: .7; }
 .page-head > .wrap { position: relative; z-index: 1; }
-
-/* marquee of practice areas */
-.marquee { --gap: 3rem; position: relative; z-index: 2; overflow: hidden; border-top: 1px solid var(--on-chrome-line); padding: .9rem 0; font-size: var(--fs-xs); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--on-chrome-2); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-.marquee-track { display: flex; gap: var(--gap); width: max-content; animation: marquee 46s linear infinite; }
-.marquee:hover .marquee-track { animation-play-state: paused; }
-.marquee span { white-space: nowrap; display: inline-flex; align-items: center; gap: var(--gap); }
-.marquee span::after { content: "◆"; font-size: .5em; color: var(--on-chrome-muted); }
-@keyframes marquee { to { transform: translateX(calc(-50% - var(--gap) / 2)); } }
 
 /* ---------- stats (generic) ---------- */
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -521,7 +515,7 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .page-head { padding-top: clamp(2.5rem, 5vw, 4.5rem); padding-bottom: clamp(2rem, 4vw, 3.5rem); }
 .page-head .h1 { max-width: 18ch; }
 .page-head .lead, .page-head .quals { margin-top: 1.25rem; }
-.quals { font-size: var(--fs-sm); line-height: 1.5; color: var(--on-chrome-2); max-width: 60ch; }
+.quals { font-size: var(--fs-sm); line-height: 1.5; color: var(--on-chrome-2); max-width: 60ch; text-align: left; hyphens: manual; }
 .crumbs { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.25rem; padding: 0; list-style: none; font-size: var(--fs-xs); color: var(--muted); }
 .crumbs li + li::before { content: "/"; margin-right: .5rem; opacity: .5; }
 .crumbs a { text-decoration: none; }
@@ -650,14 +644,13 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   .hero-word > span { transform: none; }
-  .marquee-track { animation: none; }
   .js [data-reveal] { opacity: 1; transform: none; }
   .explorer-service { opacity: 1; transform: none; }
 }
 
 /* ---------- print ---------- */
 @media print {
-  .site-header, .site-footer, .menu, .nav-toggle, .band, .marquee, .facets, .hero-photo, .timeline-nav, .filters, .subnav { display: none !important; }
+  .site-header, .site-footer, .menu, .nav-toggle, .band, .facets, .hero-photo, .timeline-nav, .filters, .subnav { display: none !important; }
   body { color: #000; }
   a { text-decoration: none; color: #000; }
   .chrome { background: #fff !important; color: #000 !important; }
@@ -693,7 +686,7 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .calc-actions { margin-top: auto; padding-top: 1.5rem; }
 .disclaimer { margin-top: clamp(2rem, 4vw, 3rem); padding-top: 1.5rem; border-top: 1px solid var(--line); }
 .disclaimer ul { margin: 1rem 0 0; padding-left: 1.1em; max-width: var(--measure); }
-.disclaimer li { font-size: var(--fs-sm); color: var(--ink-2); }
+.disclaimer li { font-size: var(--fs-sm); color: var(--ink-2); text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
 
 /* ---------- LinkedIn posts ---------- */
 .li-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.25rem, 2.5vw, 2rem); }
@@ -702,7 +695,7 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .li-card { display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--line); background: var(--paper); }
 .li-card[hidden] { display: none; }
 .li-card-head { padding: 1.1rem 1.25rem .9rem; border-bottom: 1px solid var(--line); }
-.li-card-head .meta { margin: 0 0 .4rem; font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.li-card-head .meta { margin: 0 0 .4rem; font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: left; hyphens: manual; }
 .li-card-head h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.3rem; line-height: 1.2; letter-spacing: -.01em; }
 .li-embed { position: relative; height: 480px; background: var(--paper-2); display: grid; place-items: center; }
 .li-embed iframe { width: 100%; height: 100%; border: 0; display: block; }
