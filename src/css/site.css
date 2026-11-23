@@ -228,14 +228,6 @@ p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; text-wrap: pretty
 .page-head .facets { opacity: .7; }
 .page-head > .wrap { position: relative; z-index: 1; }
 
-/* marquee of practice areas */
-.marquee { --gap: 3rem; position: relative; z-index: 2; overflow: hidden; border-top: 1px solid var(--on-chrome-line); padding: .9rem 0; font-size: var(--fs-xs); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--on-chrome-2); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-.marquee-track { display: flex; gap: var(--gap); width: max-content; animation: marquee 46s linear infinite; }
-.marquee:hover .marquee-track { animation-play-state: paused; }
-.marquee span { white-space: nowrap; display: inline-flex; align-items: center; gap: var(--gap); }
-.marquee span::after { content: "◆"; font-size: .5em; color: var(--on-chrome-muted); }
-@keyframes marquee { to { transform: translateX(calc(-50% - var(--gap) / 2)); } }
-
 /* ---------- stats (generic) ---------- */
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .stat { padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1rem, 2vw, 1.75rem); border-left: 1px solid var(--line); min-width: 0; }
@@ -652,14 +644,13 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   .hero-word > span { transform: none; }
-  .marquee-track { animation: none; }
   .js [data-reveal] { opacity: 1; transform: none; }
   .explorer-service { opacity: 1; transform: none; }
 }
 
 /* ---------- print ---------- */
 @media print {
-  .site-header, .site-footer, .menu, .nav-toggle, .band, .marquee, .facets, .hero-photo, .timeline-nav, .filters, .subnav { display: none !important; }
+  .site-header, .site-footer, .menu, .nav-toggle, .band, .facets, .hero-photo, .timeline-nav, .filters, .subnav { display: none !important; }
   body { color: #000; }
   a { text-decoration: none; color: #000; }
   .chrome { background: #fff !important; color: #000 !important; }

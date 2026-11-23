@@ -258,7 +258,6 @@ const bandImage = (key, alt, hint = 'Move over the photo to see it in colour') =
 /* ---------- home ---------- */
 function renderHome() {
   const h = home.hero, f = home.firm;
-  const marqueeItems = services.map(s => `<span>${esc(s.title)}</span>`).join('');
   const body = `
 <section class="hero chrome" data-facets="1">
   ${img('scenes/plans-overhead', { alt: '', sizes: '100vw', cls: 'hero-photo', priority: true })}
@@ -269,7 +268,6 @@ function renderHome() {
     <div class="btn-row" data-reveal="fade" style="--i:5"><a class="btn" href="${h.primary.href}">${esc(h.primary.label)}${arrow()}</a><a class="btn btn-ghost" href="${h.secondary.href}">${esc(h.secondary.label)}</a></div>
   </div>
   <div class="wrap hero-stats" data-facets-clear data-reveal="fade" style="--i:6">${site.stats.map(statTile).join('')}</div>
-  <div class="marquee" aria-hidden="true"><div class="marquee-track">${marqueeItems}${marqueeItems}</div></div>
 </section>
 
 <section class="section ruled" id="practice">
