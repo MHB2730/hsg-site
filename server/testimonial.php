@@ -23,8 +23,9 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
 $hasConfig = is_file(__DIR__ . '/mail-config.php');
-if ($hasConfig) { require_once __DIR__ . '/hsg-mail.php'; }
+require_once __DIR__ . '/hsg-mail.php'; // reads mail-config.php only when hsg_mail_config() is called
 $cfg = $hasConfig ? hsg_mail_config() : [];
+define('T_LOG_DIR', hsg_log_dir());
 
 function t_fail(int $code, string $error): void {
     http_response_code($code);
@@ -32,7 +33,7 @@ function t_fail(int $code, string $error): void {
     exit;
 }
 function t_errlog(string $what): void {
-    @file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'testimonial-errors.log',
+    @file_put_contents(T_LOG_DIR . DIRECTORY_SEPARATOR . 'testimonial-errors.log',
         gmdate('c') . ' ' . str_replace(["\r", "\n"], ' | ', $what) . "\n", FILE_APPEND | LOCK_EX);
 }
 
@@ -54,7 +55,7 @@ if ($honeypot !== '') {
         'honeypot'  => mb_substr($honeypot, 0, 100),
         'name'      => mb_substr((string)($data['name'] ?? ''), 0, 100),
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    if ($line !== false) { @file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'honeypot.log.jsonl', $line . "\n", FILE_APPEND | LOCK_EX); }
+    if ($line !== false) { @file_put_contents(T_LOG_DIR . DIRECTORY_SEPARATOR . 'honeypot.log.jsonl', $line . "\n", FILE_APPEND | LOCK_EX); }
     echo json_encode(['success' => true]);
     exit;
 }
@@ -104,7 +105,7 @@ if (!t_throttle('ip:' . $ip, 3, 3600) || !t_throttle('site', 40, 86400)) {
 $slug = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower(@iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $name) ?: 'client')), '-');
 $id = gmdate('Y-m-d') . '-' . (substr($slug, 0, 40) ?: 'client') . '-' . bin2hex(random_bytes(3));
 $submitted = gmdate('c');
-$logged = @file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'testimonials.log.jsonl', json_encode([
+$logged = @file_put_contents(T_LOG_DIR . DIRECTORY_SEPARATOR . 'testimonials.log.jsonl', json_encode([
     'id' => $id, 'timestamp' => $submitted, 'ip' => $ip,
     'ua' => mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200),
     'name' => $name, 'email' => $email, 'display' => $display, 'role' => $role, 'organisation' => $org,

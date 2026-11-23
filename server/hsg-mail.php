@@ -42,8 +42,16 @@ function hsg_parse_email_address(string $fromHeader): string {
  * @return array{preferred:string,dir:string,file:string,preferred_exists:bool,writable:bool}
  */
 function hsg_lead_paths(): array {
+    // Every log (enquiries, spam trips, mail errors) goes in hsg-leads/ beside the web folder, out of
+    // reach of the web, when that folder exists, can be written and really is outside the web root
+    // (for the review copy in review/, ../hsg-leads would be inside it); otherwise in the web folder,
+    // where .htaccess denies them.
     $preferred = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'hsg-leads';
-    $dir = is_dir($preferred) ? $preferred : dirname(__FILE__);
+    $root = realpath((string)($_SERVER['DOCUMENT_ROOT'] ?? ''));
+    $real = is_dir($preferred) ? realpath($preferred) : false;
+    $outside = $root !== false && $real !== false
+        && strpos(rtrim($real, '/\\') . DIRECTORY_SEPARATOR, rtrim($root, '/\\') . DIRECTORY_SEPARATOR) !== 0;
+    $dir = $outside && is_writable($preferred) ? $preferred : dirname(__FILE__);
     return [
         'preferred'        => $preferred,
         'dir'              => $dir,
@@ -51,6 +59,11 @@ function hsg_lead_paths(): array {
         'preferred_exists' => is_dir($preferred),
         'writable'         => is_dir($dir) && is_writable($dir),
     ];
+}
+
+/** The folder every log is written to (see hsg_lead_paths). */
+function hsg_log_dir(): string {
+    return hsg_lead_paths()['dir'];
 }
 
 /** How long enquiry, spam and error logs are kept (the privacy policy promises no longer than needed). */
@@ -109,14 +122,16 @@ function hsg_prune_log(string $file, int $days = HSG_LOG_KEEP_DAYS): void {
 }
 
 /**
- * Daily housekeeping after an enquiry: trims every log in $dir (and the lead log, wherever it lives)
- * to HSG_LOG_KEEP_DAYS, and deletes rate-limit records in the temp folder untouched for a day.
+ * Daily housekeeping after an enquiry: trims every log, in the log folder and in $dir (where older
+ * logs may still sit), to HSG_LOG_KEEP_DAYS, and deletes rate-limit records in the temp folder
+ * untouched for a day.
  */
 function hsg_housekeeping(string $dir): void {
-    foreach (['honeypot.log.jsonl', 'mail-errors.log', 'testimonials.log.jsonl', 'testimonial-errors.log'] as $name) {
-        hsg_prune_log($dir . DIRECTORY_SEPARATOR . $name);
+    foreach (array_unique([hsg_log_dir(), $dir]) as $d) {
+        foreach (['leads.log.jsonl', 'honeypot.log.jsonl', 'mail-errors.log', 'testimonials.log.jsonl', 'testimonial-errors.log'] as $name) {
+            hsg_prune_log($d . DIRECTORY_SEPARATOR . $name);
+        }
     }
-    hsg_prune_log(hsg_lead_paths()['file']);
     try {
         $stamp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hsgweb_swept.log';
         if (!is_file($stamp) || filemtime($stamp) < time() - 86400) {

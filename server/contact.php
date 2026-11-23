@@ -46,7 +46,7 @@ if ($honeypot !== '') {
         'email'     => mb_substr((string)($data['email'] ?? ''), 0, 120),
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($line !== false) {
-        @file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'honeypot.log.jsonl', $line . "\n", FILE_APPEND | LOCK_EX);
+        @file_put_contents(hsg_log_dir() . DIRECTORY_SEPARATOR . 'honeypot.log.jsonl', $line . "\n", FILE_APPEND | LOCK_EX);
     }
     echo json_encode(['success' => true]);
     exit;
@@ -137,7 +137,7 @@ $headers = implode("\r\n", [
 
 [$ok, $log] = hsg_smtp_send($to, $subj, $body, $headers, $fromHeader);
 if (!$ok) {
-    @file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'mail-errors.log', gmdate('c') . ' ' . str_replace(["\r", "\n"], ' | ', $log) . "\n", FILE_APPEND | LOCK_EX);
+    @file_put_contents(hsg_log_dir() . DIRECTORY_SEPARATOR . 'mail-errors.log', gmdate('c') . ' ' . str_replace(["\r", "\n"], ' | ', $log) . "\n", FILE_APPEND | LOCK_EX);
 }
 
 hsg_housekeeping(__DIR__);
