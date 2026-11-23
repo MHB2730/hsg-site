@@ -132,6 +132,11 @@ const serviceCard = (s, i = 0) => `<a class="service-card" href="/practice/${s.i
 </a>`;
 
 /** Page head used by every inner page: black, with the quiet emblem-contour layer. */
+// Cuts text at a word boundary for meta descriptions, never mid-word.
+const clip = (t, n) => { if (t.length <= n) return t; const cut = t.lastIndexOf(' ', n); return t.slice(0, cut > n / 2 ? cut : n).replace(/[\s,;:.–-]+$/, '') + '…'; };
+// An article's excerpt is often its own first paragraph; then it is not shown twice.
+const letters = t => t.replace(/<[^>]+>/g, '').replace(/&[a-z#0-9]+;/gi, '').replace(/[^a-z]/gi, '').toLowerCase();
+const repeatsBody = a => { const first = (a.html.match(/<p>([\s\S]*?)<\/p>/) || [])[1] || ''; const ex = letters(a.excerpt || ''), p = letters(first); return ex.length > 0 && p.slice(0, 80) === ex.slice(0, 80); };
 const pageHead = ({ crumbs, eyebrow, title, lead, extra = '' }) => `<section class="page-head chrome" data-facets="0.45">
   <div class="wrap">
     ${breadcrumbs(crumbs)}
@@ -399,7 +404,7 @@ function renderAbout() {
     <li><a href="#firm">The firm</a></li><li><a href="#history">History</a></li><li><a href="#empowerment">Staff and B-BBEE</a></li><li><a href="#appointments">Appointments</a></li><li><a href="#projects">Projects</a></li>
   </ul></div></nav>`;
   const body = `
-${pageHead({ crumbs: [['Home', '/'], ['About']], eyebrow: about.title, title: 'A specialist practice since 1990', lead: about.intro })}
+${pageHead({ crumbs: [['Home', '/'], ['About']], eyebrow: about.title, title: 'Land, planning and environmental law since 1990', lead: about.intro })}
 ${subnav}
 <section class="section" id="firm">
   <div class="wrap split">
@@ -545,7 +550,7 @@ ${pageHead({ crumbs: [['Home', '/'], ['People', '/team/'], [p.name]], eyebrow: p
   </div>
   ${others.length ? `<div class="wrap mt-4"><h2 class="h3 mb-2">Other directors</h2><div class="people-row">${others.map(personCard).join('')}</div></div>` : ''}
 </section>`;
-    write(`/team/${p.slug}/`, page({ title: p.name, description: `${p.name}, ${p.position} at HSG Attorneys. ${p.bio[0]?.slice(0, 140)}…`, path: `/team/${p.slug}/`, body, jsonld: [breadcrumbLd([['Home', '/'], ['People', '/team/'], [p.name, `/team/${p.slug}/`]]), { '@context': 'https://schema.org', '@type': 'Person', name: p.name, jobTitle: p.position, worksFor: { '@id': site.url + '/#organization' }, ...(p.email ? { email: p.email } : {}), ...(p.linkedin ? { sameAs: [p.linkedin] } : {}), ...(p.photo ? { image: site.url + `/images/team/${p.slug}-640.webp` } : {}) }] }));
+    write(`/team/${p.slug}/`, page({ title: p.name, description: `${p.name}, ${p.position} at HSG Attorneys.${p.bio[0] ? ' ' + clip(p.bio[0], 140) : ''}`, path: `/team/${p.slug}/`, body, jsonld: [breadcrumbLd([['Home', '/'], ['People', '/team/'], [p.name, `/team/${p.slug}/`]]), { '@context': 'https://schema.org', '@type': 'Person', name: p.name, jobTitle: p.position, worksFor: { '@id': site.url + '/#organization' }, ...(p.email ? { email: p.email } : {}), ...(p.linkedin ? { sameAs: [p.linkedin] } : {}), ...(p.photo ? { image: site.url + `/images/team/${p.slug}-640.webp` } : {}) }] }));
   }
 }
 
@@ -620,12 +625,13 @@ ${contactBand()}`;
   for (const a of articles) {
     const others = articles.filter(x => x.slug !== a.slug);
     const body = `
-${pageHead({ crumbs: [['Home', '/'], ['Insights', '/insights/'], [a.title]], title: a.title, lead: a.excerpt, extra: '' }).replace('<h1 class="h1">', `<p class="byline"><span>${fmtDate(a.date)}</span><span>HSG Attorneys</span></p><h1 class="h1 mt-1">`)}
+${pageHead({ crumbs: [['Home', '/'], ['Insights', '/insights/'], [a.title]], title: a.title, lead: repeatsBody(a) ? '' : a.excerpt, extra: '' }).replace('<h1 class="h1">', `<p class="byline"><span>${fmtDate(a.date)}</span><span>HSG Attorneys</span></p><h1 class="h1 mt-1">`)}
 <section class="section">
   <div class="wrap article-layout">
     <article data-reveal>
       ${a.image && hasImage(a.image) ? `<div class="article-hero mb-2">${img(a.image, { alt: a.imageAlt || '', sizes: '(max-width: 960px) 100vw, 860px' })}</div>` : ''}
       <div class="prose">${a.html}</div>
+      <p class="fine mt-3">General information only, not legal advice. Written ${fmtDate(a.date)}; the law may have changed since. For advice on your own matter, <a href="/contact/">contact us</a>.</p>
       ${a.gallery.length ? `<div class="gallery">${a.gallery.map(g => img(g, { alt: '', sizes: '(max-width: 600px) 100vw, 400px' })).join('')}</div>` : ''}
       <p class="mt-3"><a class="link" href="/insights/">${arrowLeft()}<span>All insights</span></a></p>
     </article>

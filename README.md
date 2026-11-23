@@ -178,9 +178,9 @@ overwrite hand edits in `content/`**, so do not run it unless you mean to.
 - **Timeline**, **count-up stats**, **magnetic CTAs**, **in-page nav** on About.
 
 `npm run check` also runs `scripts/copy-lint.mjs`: headings never end in a full stop,
-eyebrows carry no punctuation, leads end in one, no double spaces. Paragraph copy is
-set ragged-right (left-aligned) site-wide; it was justified until November 2026, which
-opened wide gaps between words on phones.
+eyebrows carry no punctuation, leads end in one, no double spaces. Paragraph copy and
+list items are justified with automatic hyphenation (the owner's choice, confirmed
+20 November 2026); labels, leads, headings and UI text stay left-aligned.
 
 ## Conventions
 - Brand: black chrome (`--chrome`), white paper, greys — no accent colour.
