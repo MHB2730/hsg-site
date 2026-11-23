@@ -16,7 +16,9 @@ const STAGING = process.argv.includes('--staging') || GITHUB_PAGES;
 const J = f => JSON.parse(readFileSync(f, 'utf8'));
 // People, articles and testimonials are one file per entry, which is how the admin
 // (/admin, Sveltia CMS) adds and removes them. The file name is the entry's slug.
-const folder = dir => readdirSync(dir).filter(f => f.endsWith('.json')).sort()
+// A folder with no entries yet (testimonials, before the first real one) may not exist at all:
+// git does not keep empty folders.
+const folder = dir => (existsSync(dir) ? readdirSync(dir) : []).filter(f => f.endsWith('.json')).sort()
   .map(f => ({ ...J(join(dir, f)), file: `${dir}/${f}`, slug: f.replace(/\.json$/, '') }));
 // The admin writes an image as the folder it lives in plus its file name; keep only
 // the part the image pipeline knows it by (e.g. team/matthew-bremner.png).

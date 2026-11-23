@@ -53,6 +53,85 @@ function hsg_lead_paths(): array {
     ];
 }
 
+/** How long enquiry, spam and error logs are kept (the privacy policy promises no longer than needed). */
+const HSG_LOG_KEEP_DAYS = 365;
+
+/**
+ * Drop log lines older than $days. A line's date is its leading ISO timestamp (plain .log files) or
+ * its "timestamp" field (.jsonl); lines with no readable date are kept. Runs at most once a day per
+ * file, recorded in a "<file>.pruned.log" stamp (denied over HTTP like every .log). Never throws.
+ */
+function hsg_prune_log(string $file, int $days = HSG_LOG_KEEP_DAYS): void {
+    try {
+        if (!is_file($file)) {
+            return;
+        }
+        $stamp = $file . '.pruned.log';
+        if (is_file($stamp) && filemtime($stamp) > time() - 86400) {
+            return;
+        }
+        @touch($stamp);
+        $fh = @fopen($file, 'c+');
+        if ($fh === false) {
+            return;
+        }
+        if (!@flock($fh, LOCK_EX)) {
+            @fclose($fh);
+            return;
+        }
+        $cut = time() - $days * 86400;
+        $keep = '';
+        $dropped = 0;
+        while (($line = fgets($fh)) !== false) {
+            $ts = false;
+            if (preg_match('/^(\d{4}-\d{2}-\d{2}T\S+)/', $line, $m)) {
+                $ts = strtotime($m[1]);
+            } elseif (preg_match('/"timestamp"\s*:\s*"([^"]+)"/', $line, $m)) {
+                $ts = strtotime($m[1]);
+            }
+            if ($ts !== false && $ts < $cut) {
+                $dropped++;
+                continue;
+            }
+            $keep .= $line;
+        }
+        if ($dropped > 0) {
+            @ftruncate($fh, 0);
+            @rewind($fh);
+            @fwrite($fh, $keep);
+            @fflush($fh);
+        }
+        @flock($fh, LOCK_UN);
+        @fclose($fh);
+    } catch (Throwable $e) {
+        // Housekeeping must never stop an enquiry going through.
+    }
+}
+
+/**
+ * Daily housekeeping after an enquiry: trims every log in $dir (and the lead log, wherever it lives)
+ * to HSG_LOG_KEEP_DAYS, and deletes rate-limit records in the temp folder untouched for a day.
+ */
+function hsg_housekeeping(string $dir): void {
+    foreach (['honeypot.log.jsonl', 'mail-errors.log', 'testimonials.log.jsonl', 'testimonial-errors.log'] as $name) {
+        hsg_prune_log($dir . DIRECTORY_SEPARATOR . $name);
+    }
+    hsg_prune_log(hsg_lead_paths()['file']);
+    try {
+        $stamp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hsgweb_swept.log';
+        if (!is_file($stamp) || filemtime($stamp) < time() - 86400) {
+            @touch($stamp);
+            foreach (glob(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hsgweb_*') ?: [] as $f) {
+                if ($f !== $stamp && is_file($f) && filemtime($f) < time() - 86400) {
+                    @unlink($f);
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        // Fail open, as the rate limit itself does.
+    }
+}
+
 /**
  * Append one lead record. Returns true on write success.
  *
@@ -348,10 +427,14 @@ function hsg_smtp_send(
     $errstr = '';
     $ctx = stream_context_create([
         'ssl' => [
-            // Shared-host certs often mismatch; still encrypt the session.
-            'verify_peer'       => false,
-            'verify_peer_name'  => false,
-            'allow_self_signed' => true,
+            // Check the mail server's certificate and that it is issued for this host name, so the
+            // mailbox password is only ever sent to the real server. smtp.app.hsgattorneys.co.za has a
+            // Let's Encrypt certificate naming it (checked 23 November 2026). 'verify_tls' => false in
+            // mail-config.php is an escape hatch only if the host ever serves a mismatched certificate.
+            'verify_peer'       => ($smtp['verify_tls'] ?? true) !== false,
+            'verify_peer_name'  => ($smtp['verify_tls'] ?? true) !== false,
+            'peer_name'         => $host,
+            'allow_self_signed' => false,
         ],
     ]);
     $fp = @stream_socket_client($remote, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $ctx);
