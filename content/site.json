@@ -1,6 +1,6 @@
 {
   "name": "HSG Attorneys",
-  "legalName": "HSG Inc. (Hornby, Smyly, Glavovic Inc.)",
+  "legalName": "HSG Attorneys Inc.",
   "group": "GeoAfrika Group",
   "url": "https://hsgattorneys.co.za",
   "tagline": "Attorneys for land, property and development",
@@ -56,9 +56,8 @@
       "raw": true
     },
     {
-      "value": 65,
-      "suffix": "+",
-      "label": "People",
+      "value": 2,
+      "label": "Offices",
       "note": "Durban and Cape Town"
     },
     {

@@ -131,7 +131,7 @@ works. Handy for showing people, and it needs no subdomain and no DNS.
 manifest to `build/images.json`. Photography in `scenes/`, `projects/` and
 `articles/` is rendered in greyscale (the brand is strictly black, white and grey);
 headshots stay in colour and are desaturated by CSS, revealing colour on hover.
-Service icons are normalised to `currentColor` and inlined.
+Service icons (`images/src/services/*.svg`) are hand-drawn line icons, inlined so they take the text colour. They are black and white at rest; each icon's accent shape (class `ia`) takes its practice group's colour (`--c` on the `<svg>`) when its card is hovered or focused — the one place colour appears besides the photo lens.
 
 `scripts/build.mjs` renders every page from the content files with plain template
 literals (`scripts/lib/html.mjs` holds the shared header/footer/head), writes the

@@ -1,20 +1,20 @@
 {
   "title": "About the firm",
-  "intro": "Established in 1990, HSG (Hornby, Smyly, Glavovic Inc.) was the first specialist environmental law firm in South Africa and has worked in the land-legal sector since.",
+  "intro": "Established in 1990, HSG was the first specialist environmental law firm in South Africa and has worked in the land-legal sector since.",
   "body": [
     "<p>As a firm, we work closely both with clients and built environment specialists to offer solutions that take the entire property-development process into account, enabling us to add holistic value to our clients’ projects. We also have significant experience in community facilitation, working on the ground to ensure that the social aspect of projects is handled in an effective and responsible manner.</p>",
-    "<p>HSG was established in 1990 by partners Peter Glavovic, David Smyly and Jeremy Ridl, with Shaun Hornby joining the firm the following year. Both Peter Glavovic and Jeremy Ridl served as professors of Environmental Law at the University of KwaZulu-Natal, and the practice has a long history of specialising in the field. The original partners have since exited the firm, and the current leadership is made up of the firm’s directors.</p>"
+    "<p>HSG was established in 1990 by partners Peter Glavovic, David Smyly and Jeremy Ridl, with Shaun Hornby joining the firm the following year. Both Peter Glavovic and Jeremy Ridl served as professors of Environmental Law at the University of Natal, and the practice has a long history of specialising in the field. The original partners have since exited the firm, and the current leadership is made up of the firm’s directors.</p>"
   ],
   "milestones": [
     {
       "year": "1990",
       "title": "The firm is founded",
-      "text": "Hornby, Smyly, Glavovic Inc. is established by Peter Glavovic, David Smyly and Jeremy Ridl as a specialist environmental law practice, the first of its kind in South Africa."
+      "text": "The firm is founded by Peter Glavovic, David Smyly and Jeremy Ridl as a specialist environmental law practice, the first of its kind in South Africa."
     },
     {
       "year": "1991",
       "title": "Shaun Hornby joins",
-      "text": "Shaun Hornby becomes the fourth founding partner, bringing housing and land-legal policy work to the practice."
+      "text": "Shaun Hornby joins as a partner, bringing housing and land-legal policy work to the practice."
     },
     {
       "year": "1994",
@@ -39,7 +39,7 @@
     {
       "year": "Today",
       "title": "Two offices",
-      "text": "More than 65 people in Durban and Cape Town, led by the firm’s directors, across thirteen areas of practice."
+      "text": "Offices in Durban and Cape Town, led by the firm’s directors, across thirteen areas of practice."
     }
   ],
   "empowerment": {
@@ -47,8 +47,6 @@
     "level": "Level 1 B-BBEE contributor",
     "ownership": "One-third black ownership",
     "facts": [
-      "The firm employs more than 65 staff members in addition to its directors",
-      "56% of staff are women, 36% are black and 34% are youths",
       "Courses that extend staff knowledge — conveyancing, project management, financial management, legal bookkeeping and first aid — are paid for by the firm",
       "HSG also assists employees who wish to pursue tertiary education"
     ],
@@ -68,14 +66,14 @@
       "from": "2021",
       "to": "Current",
       "client": "PropSol JV",
-      "text": "HSG is a member of the PropSol JV, which provides a comprehensive property acquisition and land identification service to SANRAL for its national land portfolio. The firm’s role is in the property acquisition and management of the portfolio, which has resulted in HSG employing more than 30 staff members dedicated to the project.",
+      "text": "HSG is a member of the PropSol JV, which provides a comprehensive property acquisition and land identification service to SANRAL for its national land portfolio. The firm’s role is in the property acquisition and management of the portfolio, with a dedicated HSG team on the project.",
       "short": "Property acquisition and land identification for SANRAL’s national land portfolio."
     },
     {
       "from": "2015",
       "to": "Current",
       "client": "SANRAL — MAJV",
-      "text": "HSG is a member of the MAJV. This entity, led by GeoAfrika, is responsible for the efficient management of SANRAL’s extensive property portfolio. The firm’s role is in the property management of the portfolio, which has resulted in HSG employing more than 60 staff members dedicated to the project.",
+      "text": "HSG is a member of the MAJV. This entity, led by GeoAfrika, is responsible for the efficient management of SANRAL’s extensive property portfolio. The firm’s role is in the property management of the portfolio, with a dedicated HSG team on the project.",
       "short": "Property management of SANRAL’s portfolio within the GeoAfrika-led MAJV."
     },
     {
@@ -93,7 +91,7 @@
       "short": "Resolution of land-related issues and conveyancing within a joint venture contracted to SANRAL."
     },
     {
-      "from": "1996",
+      "from": "",
       "to": "Current",
       "client": "Residential estate developer",
       "text": "HSG has assisted the developer throughout the development and establishment of a residential estate. This has included processes such as the submission of the DFA Order, Township Establishment and the registration of erven.",
